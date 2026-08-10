@@ -1,0 +1,6 @@
+{
+  "name": "Mostaganem Dominoes",
+  "description": "Offline Algerian Mostaganem café domino game engine and UI supporting 1v1, 2v2, 3-player, offline AI, and modular architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
