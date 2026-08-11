@@ -1,6 +1,6 @@
 {
-  "name": "Mostaganem Dominoes",
-  "description": "Offline Algerian Mostaganem café domino game engine and UI supporting 1v1, 2v2, 3-player, offline AI, and modular architecture.",
+  "name": "MOSTA GAMES CLUB",
+  "description": "An application featuring traditional Algerian games including authentic Mostaganem dominoes, with support for 1v1, 2v2, 3-player, offline AI, and online play.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

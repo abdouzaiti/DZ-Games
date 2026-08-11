@@ -1,0 +1,18 @@
+{
+  "short_name": "MGC",
+  "name": "MOSTA GAMES CLUB",
+  "description": "An application featuring traditional Algerian games",
+  "icons": [
+    {
+      "src": "/mgc.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0F172A",
+  "theme_color": "#1E3A8A",
+  "display": "standalone",
+  "orientation": "portrait"
+}
