@@ -14,7 +14,6 @@ import { Tile } from './domain/tile';
 import { GameEngine } from './engine/game/gameEngine';
 import { MostaganemRulesEngine } from './engine/rules/mostaganemRules';
 import { TurnManager } from './engine/turn/turnManager';
-
 import { GameBoard } from './ui/components/GameBoard';
 import { IntroScreen } from './ui/components/IntroScreen';
 import { MainLobby } from './ui/components/MainLobby';
@@ -30,7 +29,48 @@ import { MultiplayerRoom } from './ui/components/MultiplayerRoom';
 import { getTranslation } from './ui/translations';
 import { audioController } from './ui/utils/audio';
 
+// Error Boundary for production debugging
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("App Crash:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
+          <h1 className="text-2xl font-bold mb-4">Oups ! Une erreur est survenue</h1>
+          <pre className="bg-slate-900 p-4 rounded text-xs text-left max-w-full overflow-auto mb-6 text-red-400">
+            {this.state.error?.message || String(this.state.error)}
+          </pre>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-white text-slate-950 rounded-lg font-bold"
+          >
+            Recharger l'application
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   // Singleton instance of pure GameEngine
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 

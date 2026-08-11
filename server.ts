@@ -18,11 +18,11 @@ async function startServer() {
 
   const isProd = process.env.NODE_ENV === "production";
   
-  // In production, server.cjs is located inside the dist folder
-  const distPath = isProd ? __dirname : path.resolve(process.cwd(), "dist");
+  // Use absolute paths relative to project root
+  const distPath = path.resolve(process.cwd(), "dist");
 
   console.log(`[Server] Mode: ${isProd ? "PRODUCTION" : "DEVELOPMENT"}`);
-  console.log(`[Server] Base Path: ${distPath}`);
+  console.log(`[Server] Dist Path: ${distPath}`);
 
   if (!isProd) {
     const { createServer: createViteServer } = await import("vite");
@@ -34,15 +34,35 @@ async function startServer() {
   } else {
     if (fs.existsSync(distPath)) {
       console.log(`[Server] Serving static files from: ${distPath}`);
-      app.use(express.static(distPath));
+      // Disable automatic index.html serving so our wildcard handler with injection can catch it
+      app.use(express.static(distPath, { index: false }));
+      
       app.get("*", (req, res) => {
         const indexPath = path.join(distPath, "index.html");
         if (fs.existsSync(indexPath)) {
-          let content = fs.readFileSync(indexPath, "utf8");
-          // Inject runtime env vars for Supabase
-          const envScript = `<script>window._env_ = { SUPABASE_URL: "${process.env.SUPABASE_URL || ''}", SUPABASE_KEY: "${process.env.SUPABASE_KEY || ''}" };</script>`;
-          content = content.replace('<head>', `<head>${envScript}`);
-          res.send(content);
+          try {
+            let content = fs.readFileSync(indexPath, "utf8");
+            
+            // Inject runtime env vars for Supabase
+            // We use simple string replacement, which is safe for index.html
+            const env = {
+              SUPABASE_URL: process.env.SUPABASE_URL || '',
+              SUPABASE_KEY: process.env.SUPABASE_KEY || ''
+            };
+            const envScript = `\n<script>window._env_ = ${JSON.stringify(env)};</script>\n`;
+            
+            if (content.includes('<head>')) {
+              content = content.replace('<head>', `<head>${envScript}`);
+            } else {
+              content = envScript + content;
+            }
+            
+            res.setHeader('Content-Type', 'text/html');
+            res.send(content);
+          } catch (err) {
+            console.error(`[Server] Error processing index.html:`, err);
+            res.status(500).send("Error loading application");
+          }
         } else {
           console.error(`[Server] index.html not found at: ${indexPath}`);
           res.status(404).send("Build index.html not found");
