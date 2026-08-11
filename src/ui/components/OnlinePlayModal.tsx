@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Language, getTranslation } from '../translations';
 import { multiplayerService } from '../../services/multiplayerService';
 import { UserProfile } from './ProfileModal';
+import { supabase } from '../../lib/supabase';
 
 interface OnlinePlayModalProps {
   isOpen: boolean;
@@ -87,8 +88,14 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
           <h2 className="font-serif italic font-extrabold text-2xl text-white">
             {t.onlineTitle}
           </h2>
+          <div className="flex items-center justify-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${supabase ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {supabase ? 'Serveur Connecté' : 'Vérification...'}
+            </p>
+          </div>
           <p className="text-xs text-blue-200 leading-relaxed max-w-sm mx-auto">
-            {t.onlineDesc}
+            {supabase ? t.onlineDesc : 'Veuillez configurer vos clés Supabase dans les paramètres.'}
           </p>
         </div>
 
