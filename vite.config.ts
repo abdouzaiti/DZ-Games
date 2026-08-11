@@ -7,8 +7,8 @@ export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
-      'process.env.SUPABASE_KEY': JSON.stringify(process.env.SUPABASE_KEY),
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
+      'import.meta.env.VITE_SUPABASE_KEY': JSON.stringify(process.env.SUPABASE_KEY || ''),
     },
     resolve: {
       alias: {

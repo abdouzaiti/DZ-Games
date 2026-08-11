@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import * as dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
 
@@ -13,26 +14,42 @@ async function startServer() {
 
   // API Health Check
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+    res.json({ status: "ok", env: process.env.NODE_ENV });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  const isProd = process.env.NODE_ENV === "production";
+  const distPath = path.resolve(process.cwd(), 'dist');
+
+  console.log(`[Server] Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}`);
+
+  if (!isProd) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    if (fs.existsSync(distPath)) {
+      console.log(`[Server] Serving static files from: ${distPath}`);
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          res.sendFile(indexPath);
+        } else {
+          res.status(404).send('Build index.html not found');
+        }
+      });
+    } else {
+      console.error(`[Server] CRITICAL: dist folder not found at ${distPath}`);
+      app.get('*', (req, res) => {
+        res.status(500).send('Application build missing. Please run build script.');
+      });
+    }
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
