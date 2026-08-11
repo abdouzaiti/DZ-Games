@@ -68,7 +68,6 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
     >
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1E3A8A_0%,_#0F172A_100%)] opacity-85 pointer-events-none" />
-      <div className="absolute inset-4 sm:inset-6 border border-blue-400/20 rounded-3xl pointer-events-none" />
 
       {/* TOP BAR HEADER */}
       <header className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between py-2">

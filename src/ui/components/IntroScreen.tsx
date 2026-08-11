@@ -26,7 +26,6 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onEnter }) => {
     <div className="fixed inset-0 z-50 bg-slate-900 text-slate-100 flex flex-col justify-between overflow-y-auto selection:bg-blue-500 selection:text-white p-4 sm:p-8">
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1E3A8A_0%,_#0F172A_100%)] opacity-80 pointer-events-none" />
-      <div className="absolute inset-6 border border-blue-400/20 rounded-3xl pointer-events-none" />
 
       {/* Main Hero Card */}
       <main className="relative z-10 w-full max-w-3xl mx-auto my-auto py-8 flex flex-col items-center text-center space-y-6 sm:space-y-8">
