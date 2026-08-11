@@ -71,8 +71,8 @@ export const DominoTile: React.FC<DominoTileProps> = ({
   if (flipped) {
     return (
       <div
-        className={`rounded-lg bg-white border-2 border-slate-300 shadow-md flex items-center justify-center`}
-        style={width && height ? { width, height } : undefined}
+        className={`relative select-none flex flex-col items-center justify-center rounded-lg bg-white border-2 border-slate-200 shadow-md overflow-hidden`}
+        style={width && height ? { width, height } : { width: small ? 36 : 48, height: small ? 64 : 80 }}
       />
     );
   }
@@ -93,7 +93,9 @@ export const DominoTile: React.FC<DominoTileProps> = ({
           ? 'ring-4 ring-[#D4A373] scale-105 shadow-[#D4A373]/50 -translate-y-2 border-[#FEFAE0] z-20'
           : isPlayable
           ? 'ring-2 ring-[#CCD5AE] hover:-translate-y-1 hover:shadow-2xl cursor-pointer shadow-[#CCD5AE]/20 border-[#CCD5AE]'
-          : 'opacity-50 grayscale-[20%] cursor-not-allowed border-[#3D322A]'
+          : onClick
+          ? 'opacity-50 grayscale-[20%] cursor-not-allowed border-[#3D322A]'
+          : 'border-slate-300 shadow-md'
       } ${
         styleObj
           ? '' // size handled by inline styles
@@ -104,7 +106,7 @@ export const DominoTile: React.FC<DominoTileProps> = ({
           : isVertical
           ? 'w-12 h-22'
           : 'w-22 h-12'
-      } bg-[#FEFAE0] text-[#2D241E]`}
+      } bg-white text-slate-900`}
     >
       {/* Top / Left Half */}
       <div className="flex-1 flex items-center justify-center relative w-full h-full">
@@ -113,7 +115,7 @@ export const DominoTile: React.FC<DominoTileProps> = ({
 
       {/* Center Divider */}
       <div
-        className={`bg-[#D4A373]/30 ${
+        className={`bg-slate-300 ${
           isVertical ? 'w-full h-0.5 my-0' : 'h-full w-0.5 mx-0'
         }`}
       />

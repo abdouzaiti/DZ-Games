@@ -25,7 +25,7 @@ import { ScoreBoard } from './ui/components/ScoreBoard';
 import { SettingsModal, AppSettings } from './ui/components/SettingsModal';
 import { ProfileModal, UserProfile } from './ui/components/ProfileModal';
 import { TileShuffler } from './ui/components/TileShuffler';
-import { DrawingTableModal } from './ui/components/DrawingTableModal';
+import { GameStock } from './ui/components/GameStock';
 import { getTranslation } from './ui/translations';
 import { audioController } from './ui/utils/audio';
 
@@ -73,8 +73,6 @@ export default function App() {
   const [isMatchSetupOpenInGame, setIsMatchSetupOpenInGame] = useState<boolean>(false);
   const [isShuffling, setIsShuffling] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const [isDrawingTableOpen, setIsDrawingTableOpen] = useState<boolean>(false);
-  const [lastDrawnTile, setLastDrawnTile] = useState<Tile | null>(null);
   const prevHandLength = React.useRef<number>(0);
 
   const triggerNotification = (message: string) => {
@@ -138,9 +136,9 @@ export default function App() {
     engine.dispatch(action);
   };
 
-  const humanPlayer = snapshot.players[0]; // Human player is Player 1
-  const activePlayer = TurnManager.getActivePlayer(snapshot.players, snapshot.currentPlayerIndex);
-  const isHumanTurn = activePlayer.id === humanPlayer.id && snapshot.roundStatus === 'PLAYING';
+  const humanPlayer = snapshot.players[0] || { id: 'p0', name: 'You', hand: [], isHuman: true };
+  const activePlayer = TurnManager.getActivePlayer(snapshot.players, snapshot.currentPlayerIndex) || humanPlayer;
+  const isHumanTurn = (activePlayer?.id === humanPlayer?.id) && snapshot.roundStatus === 'PLAYING';
 
   // Compute playable tiles in human player's hand
   const validMoves = useMemo(() => {
@@ -156,19 +154,8 @@ export default function App() {
   useEffect(() => {
     if (!humanPlayer) return;
     const currentLen = humanPlayer.hand.length;
-    if (isDrawingTableOpen && currentLen === prevHandLength.current + 1) {
-      const newlyDrawn = humanPlayer.hand[currentLen - 1];
-      setLastDrawnTile(newlyDrawn);
-    }
     prevHandLength.current = currentLen;
-  }, [humanPlayer?.hand, isDrawingTableOpen]);
-
-  // Reset last drawn tile when drawing table closes or human turn changes
-  useEffect(() => {
-    if (!isDrawingTableOpen || !isHumanTurn) {
-      setLastDrawnTile(null);
-    }
-  }, [isDrawingTableOpen, isHumanTurn]);
+  }, [humanPlayer?.hand]);
 
   // Compute valid ends for selected tile
   const validEndsForSelectedTile = useMemo((): PlacementEnd[] => {
@@ -333,11 +320,6 @@ export default function App() {
         <ScoreBoard
           snapshot={snapshot}
           userAvatar={profile.avatar}
-          canDraw={canDraw}
-          onSachetClick={() => {
-            audioController.playButtonClick(settings.soundEffects);
-            setIsDrawingTableOpen(true);
-          }}
           language={settings.language}
           onBackToLobby={() => {
             audioController.playButtonClick(settings.soundEffects);
@@ -348,68 +330,73 @@ export default function App() {
           onNewMatch={() => setIsMatchSetupOpenInGame(true)}
         />
 
-        {/* Center Game Board or Shuffler */}
-        {isShuffling ? (
-          <TileShuffler
-            language={settings.language}
-            soundEffects={settings.soundEffects}
-            vibration={settings.vibration}
-            playerCount={snapshot.players.length || 2}
-            onComplete={() => setIsShuffling(false)}
+        {/* Center Game Board Container */}
+        <div className="relative flex-1 w-full flex flex-col justify-center overflow-hidden my-1">
+          <GameBoard
+            board={snapshot.board}
+            selectedTileId={selectedTile?.id || null}
+            validEndsForSelectedTile={validEndsForSelectedTile}
+            onPlaceTile={handlePlaceTile}
           />
-        ) : (
-          <>
-            <GameBoard
-              board={snapshot.board}
-              selectedTileId={selectedTile?.id || null}
-              validEndsForSelectedTile={validEndsForSelectedTile}
-              onPlaceTile={handlePlaceTile}
-            />
 
-            {/* Human Player Rack */}
-            <div className="w-full">
-              <PlayerRack
-                player={humanPlayer}
-                userAvatar={profile.avatar}
-                isCurrentTurn={isHumanTurn}
-                selectedTileId={selectedTile?.id || null}
-                playableTileIds={playableTileIds}
-                canDraw={canDraw}
-                canPass={canPass}
-                stockCount={snapshot.stock.length}
-                requiredOpeningTileId={snapshot.requiredOpeningTileId}
-                logs={logs}
-                onSelectTile={handleTileSelect}
-                onOpenDrawingTable={() => {
-                  audioController.playButtonClick(settings.soundEffects);
-                  setIsDrawingTableOpen(true);
-                }}
-                onPass={() => {
-                  audioController.playButtonClick(settings.soundEffects);
-                  handleDispatch({ type: 'PASS_TURN', playerId: humanPlayer.id });
-                }}
+          {/* Physical Tile Stock Pile on the Right */}
+          {!isShuffling && (
+            <GameStock
+              stock={snapshot.stock}
+              canDraw={canDraw}
+              onDraw={() => {
+                audioController.playTileClick(settings.soundEffects);
+                handleDispatch({ type: 'DRAW_TILE', playerId: humanPlayer.id });
+              }}
+              language={settings.language}
+            />
+          )}
+
+          {/* Interactive Manual Shuffle and Tile Pick Overlay */}
+          {isShuffling && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center">
+              <TileShuffler
                 language={settings.language}
+                soundEffects={settings.soundEffects}
+                vibration={settings.vibration}
+                playerCount={snapshot.players.length || 2}
+                playerNames={snapshot.players.map((p) => p.name)}
+                playerAvatars={snapshot.players.map((p, i) => (i === 0 ? profile.avatar : '🤖'))}
+                humanHand={humanPlayer?.hand || []}
+                allPlayersHands={snapshot.players.map((p) => p.hand)}
+                sachetStock={snapshot.stock}
+                onComplete={() => setIsShuffling(false)}
               />
             </div>
-          </>
+          )}
+        </div>
+
+        {/* Human Player Rack */}
+        {!isShuffling && (
+          <div className="w-full">
+            <PlayerRack
+              player={humanPlayer}
+              userAvatar={profile.avatar}
+              isCurrentTurn={isHumanTurn}
+              selectedTileId={selectedTile?.id || null}
+              playableTileIds={playableTileIds}
+              canDraw={canDraw}
+              canPass={canPass}
+              stockCount={snapshot.stock.length}
+              requiredOpeningTileId={snapshot.requiredOpeningTileId}
+              logs={logs}
+              onSelectTile={handleTileSelect}
+              onPass={() => {
+                audioController.playButtonClick(settings.soundEffects);
+                handleDispatch({ type: 'PASS_TURN', playerId: humanPlayer.id });
+              }}
+              language={settings.language}
+            />
+          </div>
         )}
       </main>
 
       {/* Modals In Game */}
-      <DrawingTableModal
-        isOpen={isDrawingTableOpen}
-        onClose={() => setIsDrawingTableOpen(false)}
-        stockCount={snapshot.stock.length}
-        onDrawTile={() => {
-          audioController.playTileClick(settings.soundEffects);
-          handleDispatch({ type: 'DRAW_TILE', playerId: humanPlayer.id });
-        }}
-        playableTileIds={playableTileIds}
-        lastDrawnTile={lastDrawnTile}
-        language={settings.language}
-        onClearLastDrawn={() => setLastDrawnTile(null)}
-      />
-
       <SettingsModal
         isOpen={isSettingsOpenInGame}
         settings={settings}

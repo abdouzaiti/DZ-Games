@@ -161,8 +161,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full flex-1 min-h-0 p-1 sm:p-4 flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full flex-1 min-h-[320px] sm:min-h-[400px] p-2 sm:p-4 flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950 border-4 border-slate-800/80 shadow-[inset_0_0_100px_rgba(0,0,0,0.9),0_12px_40px_rgba(15,23,42,0.8)] my-1"
     >
+      {/* Decorative Table Felt Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
+        <span className="text-8xl sm:text-9xl font-black tracking-widest text-blue-300/20">MOSTAGANEM</span>
+      </div>
 
       {/* Empty Board State */}
       {board.chain.length === 0 ? (

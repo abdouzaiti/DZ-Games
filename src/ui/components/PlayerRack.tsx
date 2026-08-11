@@ -21,7 +21,6 @@ interface PlayerRackProps {
   requiredOpeningTileId?: string | null;
   logs?: string[];
   onSelectTile: (tile: Tile) => void;
-  onOpenDrawingTable?: () => void;
   onPass?: () => void;
   language?: string;
 }
@@ -38,7 +37,6 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
   requiredOpeningTileId,
   logs = [],
   onSelectTile,
-  onOpenDrawingTable,
   onPass,
   language = 'fr',
 }) => {
@@ -86,7 +84,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
 
           {canDraw && (
             <p className="text-[9px] sm:text-[10px] text-blue-300 font-bold uppercase tracking-widest animate-pulse mt-0.5">
-              {isAr ? 'لا توجد حركات متاحة • انقر على السلة أعلاه لتسحب !' : 'Aucun coup possible • Cliquez sur le sachet ci-dessus pour piocher !'}
+              {isAr ? 'لا توجد حركات متاحة • انقر على قطع السحب على اليمين !' : 'Aucun coup possible • Cliquez sur la pile à droite pour piocher !'}
             </p>
           )}
         </div>

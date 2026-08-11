@@ -14,8 +14,6 @@ interface ScoreBoardProps {
   onOpenProfile?: () => void;
   onOpenSettings?: () => void;
   onNewMatch?: () => void;
-  canDraw?: boolean;
-  onSachetClick?: () => void;
   language?: string;
 }
 
@@ -26,8 +24,6 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   onOpenProfile,
   onOpenSettings,
   onNewMatch,
-  canDraw = false,
-  onSachetClick,
   language = 'fr',
 }) => {
   const { config, matchScores, roundNumber, stock, players, currentPlayerIndex } = snapshot;
@@ -117,38 +113,6 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
         <div className="flex items-center gap-1.5">
           {aiPlayers.map((p, idx) => renderPlayerCard(p, idx + 1))}
         </div>
-
-        {/* Separator before sachet */}
-        <div className="h-5 w-[1px] bg-slate-700/80 mx-0.5 sm:mx-1 shrink-0" />
-
-        {/* Sachet de Dominos (Bag of tiles) */}
-        <button
-          type="button"
-          onClick={onSachetClick}
-          disabled={!canDraw}
-          className={`relative flex items-center justify-center p-0.5 sm:p-1 transition-all select-none ${
-            canDraw
-              ? 'hover:scale-110 active:scale-95 animate-pulse cursor-pointer'
-              : 'opacity-40 cursor-not-allowed'
-          }`}
-          title={
-            canDraw
-              ? (language === 'ar' ? 'انقر للسحب من السلة' : 'Cliquez pour piocher du sachet')
-              : (stock.length === 0 ? "Vide" : stock.length === 1 ? "1 domino" : `${stock.length} dominos`)
-          }
-        >
-          <img
-            src={leatherPouchImg}
-            alt="كيس جلد بني"
-            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded-xl border border-amber-800/60 shadow-md"
-            referrerPolicy="no-referrer"
-          />
-          {stock.length > 0 && (
-            <span className={`absolute -top-1 -right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full text-white font-black text-[9px] sm:text-[10px] shadow-md border border-slate-900 ${canDraw ? 'bg-blue-500' : 'bg-slate-600'}`}>
-              {stock.length}
-            </span>
-          )}
-        </button>
       </div>
     </div>
   );

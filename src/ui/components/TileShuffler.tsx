@@ -1,333 +1,294 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { audioController } from '../utils/audio';
 import { getTranslation, Language } from '../translations';
+import { Tile, createTile } from '../../domain/tile';
+import { DominoTile } from './DominoTile';
+import leatherPouchImg from '../../assets/images/leather_domino_pouch_1786418367291.jpg';
 
 interface TileShufflerProps {
   language: Language;
   soundEffects: boolean;
   vibration: boolean;
   playerCount?: number;
+  playerNames?: string[];
+  playerAvatars?: string[];
+  humanHand?: Tile[];
+  allPlayersHands?: Tile[][];
+  sachetStock?: Tile[];
   onComplete: () => void;
 }
 
-interface ShufflerTile {
-  id: number;
+interface TileState {
+  id: string;
+  index: number;
+  tileObj?: Tile;
   x: number;
   y: number;
   rotate: number;
   scale: number;
   opacity: number;
+  zIndex: number;
+  isPickedByHuman: boolean;
+  pickedSlotIndex?: number;
+  isDealtToOther: boolean;
+  isFlipped: boolean;
 }
-
-const HandIcon: React.FC<{ isLeft?: boolean }> = ({ isLeft = false }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#FFFFFF"
-    strokeWidth="1.4"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-24 h-24 text-white opacity-90"
-    style={{ transform: isLeft ? 'scaleX(-1)' : 'none' }}
-  >
-    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5" />
-    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
-    <path d="M10 10.5V5.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v9" />
-    <path d="M6 13V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6c0 5.5 4.5 10 10 10h1a4 4 0 0 0 4-4v-5" />
-    <path d="M18 11a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1" />
-  </svg>
-);
 
 export const TileShuffler: React.FC<TileShufflerProps> = ({
   language,
   soundEffects,
   vibration,
   playerCount = 2,
+  playerNames = ['Vous', 'Joueur 2', 'Joueur 3', 'Joueur 4'],
+  playerAvatars = ['🇩🇿', '🤖', '🤖', '🤖'],
+  humanHand = [],
+  allPlayersHands = [],
+  sachetStock = [],
   onComplete,
 }) => {
-  const t = getTranslation(language);
-  const [tiles, setTiles] = useState<ShufflerTile[]>([]);
-  const [shuffling, setShuffling] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [isDealing, setIsDealing] = useState(false);
-  const hasStartedSeq = useRef(false);
+  const isAr = language === 'ar';
 
-  // Initialize and run the shuffle & fast sequential deal sequence once on mount
-  useEffect(() => {
-    if (hasStartedSeq.current) return;
-    hasStartedSeq.current = true;
+  const numPlayers = Math.min(Math.max(playerCount, 2), 4);
+  const targetHumanTileCount = numPlayers === 3 ? 6 : 7;
 
-    const numPlayers = playerCount || 2;
-    const tilesPerPlayer = 7;
-    const totalPlayerTiles = Math.min(numPlayers * tilesPerPlayer, 28);
+  // Flow phases: 'AUTO_SHUFFLE' -> 'DISTRIBUTING' -> 'FINISHED'
+  const [phase, setPhase] = useState<'AUTO_SHUFFLE' | 'DISTRIBUTING' | 'FINISHED'>('AUTO_SHUFFLE');
 
-    // 1. Generate 28 initial tiles in neat grid at center
-    const initialTiles: ShufflerTile[] = [];
+  // Track human picked count for UI progress
+  const [humanPickedCount, setHumanPickedCount] = useState(0);
+  
+  // Track visual counters
+  const [sachetCount, setSachetCount] = useState<number>(0);
+  const [isSachetPulsing, setIsSachetPulsing] = useState<boolean>(false);
+
+  // Initialize 28 face-down tiles on the board
+  const [tiles, setTiles] = useState<TileState[]>(() => {
+    const initial: TileState[] = [];
     const cols = 7;
     for (let i = 0; i < 28; i++) {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const x = (col - 3) * 48 + (Math.random() * 4 - 2);
-      const y = (row - 1.5) * 72 + (Math.random() * 4 - 2);
-      initialTiles.push({
-        id: i,
+      // Scatter in a center cluster on board
+      const x = (col - 3) * 32 + (Math.random() * 20 - 10);
+      const y = (row - 1.5) * 42 + (Math.random() * 20 - 10);
+      const rotate = Math.random() * 60 - 30;
+
+      initial.push({
+        id: `domino_board_${i}`,
+        index: i,
         x,
         y,
-        rotate: Math.random() * 16 - 8,
+        rotate,
         scale: 1,
         opacity: 1,
+        zIndex: i + 10,
+        isPickedByHuman: false,
+        isDealtToOther: false,
+        isFlipped: false,
       });
     }
-    setTiles(initialTiles);
+    return initial;
+  });
 
-    const activeTimers: NodeJS.Timeout[] = [];
-    const activeIntervals: NodeJS.Timeout[] = [];
+  // Action: Melange (Shuffle) tiles on board
+  const handleShuffle = () => {
+    if (soundEffects) {
+      audioController.playShuffleSound(true);
+    }
+    audioController.triggerVibration(vibration, 80);
 
-    // Phase 1: Shuffle
-    const shuffleTimer = setTimeout(() => {
-      setShuffling(true);
-      audioController.triggerVibration(vibration, 100);
+    setTiles((prev) =>
+      prev.map((tile) => {
+        if (tile.isPickedByHuman || tile.isDealtToOther) return tile;
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 25 + Math.random() * 120;
+        return {
+          ...tile,
+          x: Math.cos(angle) * radius + (Math.random() * 20 - 10),
+          y: Math.sin(angle) * radius + (Math.random() * 20 - 10),
+          rotate: Math.random() * 720 - 360,
+          zIndex: Math.floor(Math.random() * 50) + 10,
+        };
+      })
+    );
+  };
 
-      const shuffleDuration = 2200; // 2.2 seconds of mixing
-      const intervalTime = 90;
-      const totalSteps = shuffleDuration / intervalTime;
+  // Auto sequence control
+  useEffect(() => {
+    let isMounted = true;
 
-      const interval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + (100 / totalSteps), 100));
+    const runSequence = async () => {
+      // 1. Initial wait
+      await new Promise(r => setTimeout(r, 800));
+      if (!isMounted) return;
 
-        if (soundEffects) {
-          audioController.playShuffleSound(true);
-          if (Math.random() > 0.4) {
-            const extraSoundTimer = setTimeout(() => {
-              audioController.playShuffleSound(true);
-            }, 35);
-            activeTimers.push(extraSoundTimer);
+      // 2. Shuffle 3 times
+      for (let i = 0; i < 3; i++) {
+        handleShuffle();
+        await new Promise(r => setTimeout(r, 600));
+        if (!isMounted) return;
+      }
+
+      // 3. Transition to Distributing
+      setPhase('DISTRIBUTING');
+      await new Promise(r => setTimeout(r, 400));
+      if (!isMounted) return;
+
+      // 4. Round-robin distribution
+      const allTilesToDistribute = [...tiles].sort(() => Math.random() - 0.5);
+      const tilesPerPlayer = targetHumanTileCount;
+      let currentTileIndex = 0;
+
+      // Helper to compute opponent slot target
+      const getSlotCoordinates = (pIdx: number, sIdx: number) => {
+        if (pIdx === 0) {
+          // Human
+          return { x: (sIdx - (targetHumanTileCount - 1) / 2) * 44, y: 175 };
+        }
+        if (pIdx === 1) {
+          if (numPlayers === 2) return { x: (sIdx - 3) * 40, y: -165 }; // North
+          return { x: -205, y: (sIdx - 3) * 26 }; // West
+        }
+        if (pIdx === 2) {
+          if (numPlayers === 3) return { x: 205, y: (sIdx - 3) * 26 }; // East
+          return { x: (sIdx - 3) * 40, y: -165 }; // North
+        }
+        return { x: 205, y: (sIdx - 3) * 26 }; // East
+      };
+
+      // Deal logic
+      for (let slotIdx = 0; slotIdx < tilesPerPlayer; slotIdx++) {
+        for (let playerIdx = 0; playerIdx < numPlayers; playerIdx++) {
+          if (currentTileIndex < allTilesToDistribute.length) {
+            const tileToDealId = allTilesToDistribute[currentTileIndex].id;
+            const targetCoords = getSlotCoordinates(playerIdx, slotIdx);
+            const realTile = (allPlayersHands[playerIdx] && allPlayersHands[playerIdx][slotIdx]);
+
+            if (soundEffects) audioController.playTileClick(true);
+            audioController.triggerVibration(vibration, 15);
+
+            setTiles(prev => prev.map(t => t.id === tileToDealId ? {
+              ...t,
+              isPickedByHuman: playerIdx === 0,
+              isDealtToOther: playerIdx > 0,
+              x: targetCoords.x,
+              y: targetCoords.y,
+              rotate: playerIdx === 0 ? 0 : 360,
+              scale: playerIdx === 0 ? 1 : 0.8,
+              tileObj: realTile,
+              zIndex: 200 + currentTileIndex,
+              isFlipped: playerIdx === 0, // reveal human's tiles
+            } : t));
+
+            if (playerIdx === 0) setHumanPickedCount(prev => prev + 1);
+
+            currentTileIndex++;
+            await new Promise(r => setTimeout(r, 120));
+            if (!isMounted) return;
           }
         }
+      }
 
-        // Swirling chaotic motion
-        setTiles((prevTiles) =>
-          prevTiles.map((tile) => {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 20 + Math.random() * 110;
-            return {
-              ...tile,
-              x: Math.cos(angle) * radius + (Math.random() * 10 - 5),
-              y: Math.sin(angle) * radius + (Math.random() * 10 - 5),
-              rotate: Math.random() * 360 - 180,
-            };
-          })
-        );
-      }, intervalTime);
-      activeIntervals.push(interval);
+      // 5. Send remaining to Stock Pile (Right Side)
+      let stockIdx = 0;
+      while (currentTileIndex < allTilesToDistribute.length) {
+        const tileToStockId = allTilesToDistribute[currentTileIndex].id;
+        
+        // Stack them slightly staggered on the right
+        const stockCoords = { 
+          x: 280 + (stockIdx % 3) * 2, 
+          y: -120 + (stockIdx * 6) 
+        };
 
-      // Phase 2: Gather tiles and start fast distribution
-      const dealDelayTimer = setTimeout(() => {
-        clearInterval(interval);
-        setShuffling(false);
-        setProgress(100);
+        if (soundEffects) audioController.playTileClick(true);
+        audioController.triggerVibration(vibration, 10);
 
-        // Gather tiles into stack
-        setTiles((prevTiles) =>
-          prevTiles.map((tile, idx) => ({
-            ...tile,
-            x: (idx % 7 - 3) * 10 + (Math.random() * 4 - 2),
-            y: (Math.floor(idx / 7) - 1.5) * 10 + (Math.random() * 4 - 2),
-            rotate: (idx % 2 === 0 ? 1 : -1) * (Math.random() * 6),
-            scale: 1,
-            opacity: 1,
-          }))
-        );
+        setTiles(prev => prev.map(t => t.id === tileToStockId ? {
+          ...t,
+          isDealtToOther: true,
+          x: stockCoords.x,
+          y: stockCoords.y,
+          rotate: 90 + (Math.random() * 10 - 5), // Rotate them sideways
+          scale: 0.8,
+          zIndex: 50 + stockIdx,
+        } : t));
 
-        // Fast Distribution Phase
-        const dealStartTimer = setTimeout(() => {
-          setIsDealing(true);
+        currentTileIndex++;
+        stockIdx++;
+        await new Promise(r => setTimeout(r, 60));
+        if (!isMounted) return;
+      }
 
-          const getPlayerTarget = (pIdx: number) => {
-            if (numPlayers === 2) {
-              if (pIdx === 0) return { x: 0, y: 480 }; // South
-              return { x: 0, y: -480 }; // North
-            } else if (numPlayers === 3) {
-              if (pIdx === 0) return { x: 0, y: 480 }; // South
-              if (pIdx === 1) return { x: -580, y: 0 }; // West
-              return { x: 580, y: 0 }; // East
-            } else {
-              if (pIdx === 0) return { x: 0, y: 480 }; // South
-              if (pIdx === 1) return { x: -580, y: 0 }; // West
-              if (pIdx === 2) return { x: 0, y: -480 }; // North
-              return { x: 580, y: 0 }; // East
-            }
-          };
-
-          const sachetTarget = { x: -360, y: -360 }; // Sachet bag at top-left
-
-          let currentDealIndex = 0;
-          const dealStepInterval = 55; // Fast 55ms per tile deal
-
-          const dealInterval = setInterval(() => {
-            if (currentDealIndex >= totalPlayerTiles) {
-              clearInterval(dealInterval);
-
-              // Rush remaining tiles into Sachet
-              if (totalPlayerTiles < 28) {
-                let sachetIndex = totalPlayerTiles;
-                const sachetInterval = setInterval(() => {
-                  if (sachetIndex >= 28) {
-                    clearInterval(sachetInterval);
-
-                    const finishTimer = setTimeout(() => {
-                      onComplete();
-                    }, 400);
-                    activeTimers.push(finishTimer);
-                    return;
-                  }
-
-                  const tileId = sachetIndex;
-                  if (soundEffects) {
-                    audioController.playTileClick(true);
-                  }
-                  audioController.triggerVibration(vibration, 15);
-
-                  setTiles((prevTiles) =>
-                    prevTiles.map((tile) => {
-                      if (tile.id === tileId) {
-                        return {
-                          ...tile,
-                          x: sachetTarget.x,
-                          y: sachetTarget.y,
-                          rotate: 720,
-                          scale: 0.15,
-                          opacity: 0,
-                        };
-                      }
-                      return tile;
-                    })
-                  );
-
-                  sachetIndex++;
-                }, 35);
-                activeIntervals.push(sachetInterval);
-              } else {
-                const finishTimer = setTimeout(() => {
-                  onComplete();
-                }, 400);
-                activeTimers.push(finishTimer);
-              }
-              return;
-            }
-
-            // Deal next tile to player
-            const tileId = currentDealIndex;
-            const targetPlayer = currentDealIndex % numPlayers;
-            const target = getPlayerTarget(targetPlayer);
-
-            if (soundEffects) {
-              audioController.playTileClick(true);
-            }
-            audioController.triggerVibration(vibration, 20);
-
-            setTiles((prevTiles) =>
-              prevTiles.map((tile) => {
-                if (tile.id === tileId) {
-                  return {
-                    ...tile,
-                    x: target.x,
-                    y: target.y,
-                    rotate: tile.rotate + 360,
-                    scale: 0.15,
-                    opacity: 0,
-                  };
-                }
-                return tile;
-              })
-            );
-
-            currentDealIndex++;
-          }, dealStepInterval);
-
-          activeIntervals.push(dealInterval);
-
-        }, 350);
-        activeTimers.push(dealStartTimer);
-
-      }, shuffleDuration);
-      activeTimers.push(dealDelayTimer);
-
-    }, 400);
-    activeTimers.push(shuffleTimer);
-
-    return () => {
-      hasStartedSeq.current = false;
-      activeTimers.forEach(clearTimeout);
-      activeIntervals.forEach(clearInterval);
+      // 6. Finished
+      await new Promise(r => setTimeout(r, 500));
+      if (isMounted) {
+        setPhase('FINISHED');
+        onComplete();
+      }
     };
-  }, [soundEffects, vibration, playerCount, onComplete]);
 
-  const isAr = language === 'ar';
+    runSequence();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
-    <div className="w-full flex-1 min-h-[440px] flex flex-col items-center justify-between relative overflow-hidden bg-transparent select-none">
+    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-between z-50 select-none p-2 overflow-hidden pointer-events-auto">
       
-      {/* Shuffling Table Sandbox Area */}
-      <div className="flex-1 w-full relative flex items-center justify-center min-h-[280px] sm:min-h-[320px] my-2">
-        
-        {/* Transparent table container */}
-        <div className="relative w-full h-full flex items-center justify-center">
-          {/* Shuffling Hands overlay */}
-          <AnimatePresence>
-            {shuffling && (
-              <>
-                {/* Left Hand */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, x: -160, y: 60, rotate: -25 }}
-                  animate={{
-                    opacity: 0.75,
-                    scale: 1.05,
-                    x: [-120, -40, -100, -160, -60, -120],
-                    y: [-40, 20, -60, 40, -10, -40],
-                    rotate: [-15, 10, -25, 5, -15, -15],
-                  }}
-                  exit={{ opacity: 0, scale: 0.8, x: -160, y: 60, transition: { duration: 0.3 } }}
-                  transition={{
-                    x: { repeat: Infinity, duration: 2.2, ease: "easeInOut" },
-                    y: { repeat: Infinity, duration: 1.8, ease: "easeInOut" },
-                    rotate: { repeat: Infinity, duration: 1.6, ease: "easeInOut" },
-                    opacity: { duration: 0.3 },
-                    scale: { duration: 0.3 }
-                  }}
-                  className="absolute pointer-events-none z-30 filter drop-shadow-[0_15px_18px_rgba(0,0,0,0.7)]"
-                >
-                  <HandIcon isLeft={true} />
-                </motion.div>
+      {/* --- TOP ACTION BAR --- */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-50 px-4">
+        {phase === 'AUTO_SHUFFLE' && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center gap-2 bg-slate-950/80 border border-amber-500/40 shadow-2xl rounded-full px-5 py-2 backdrop-blur-md"
+          >
+            <div className="text-amber-300 font-black text-sm uppercase tracking-wider flex items-center gap-2">
+              <span className="animate-spin">🔀</span>
+              <span>{isAr ? 'جاري خلط القطع...' : 'Mélange des dominos...'}</span>
+            </div>
+          </motion.div>
+        )}
 
-                {/* Right Hand */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, x: 160, y: -60, rotate: 25 }}
-                  animate={{
-                    opacity: 0.75,
-                    scale: 1.05,
-                    x: [120, 40, 100, 160, 60, 120],
-                    y: [40, -20, 60, -40, 10, 40],
-                    rotate: [15, -10, 25, -5, 15, 15],
-                  }}
-                  exit={{ opacity: 0, scale: 0.8, x: 160, y: -60, transition: { duration: 0.3 } }}
-                  transition={{
-                    x: { repeat: Infinity, duration: 2.4, ease: "easeInOut" },
-                    y: { repeat: Infinity, duration: 1.9, ease: "easeInOut" },
-                    rotate: { repeat: Infinity, duration: 1.7, ease: "easeInOut" },
-                    opacity: { duration: 0.3 },
-                    scale: { duration: 0.3 }
-                  }}
-                  className="absolute pointer-events-none z-30 filter drop-shadow-[0_15px_18px_rgba(0,0,0,0.7)]"
-                >
-                  <HandIcon isLeft={false} />
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+        {phase === 'DISTRIBUTING' && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center gap-3 bg-slate-950/80 border border-emerald-500/40 shadow-2xl rounded-full px-5 py-2 backdrop-blur-md text-center"
+          >
+            <span className="text-emerald-300 font-extrabold text-sm flex items-center gap-2">
+              <span className="animate-pulse">✋</span>
+              {isAr ? 'توزيع القطع...' : 'Distribution...'}
+            </span>
+            <div className="w-px h-4 bg-slate-700" />
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-xs">
+              {humanPickedCount} / {targetHumanTileCount}
+            </span>
+          </motion.div>
+        )}
+      </div>
 
-          {tiles.map((tile) => (
+      {/* --- SACHET ICON AT TOP-LEFT FOR STOCK --- */}
+      {sachetCount > 0 && (
+        <div
+          className={`absolute top-4 left-4 z-40 flex items-center gap-2 transition-transform ${
+            isSachetPulsing ? 'scale-125' : 'scale-100'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-2xl border-2 border-amber-600/80 shadow-2xl overflow-hidden relative bg-amber-950/60">
+            <img src={leatherPouchImg} alt="Sachet" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/20" />
+            <div className="absolute bottom-0 inset-x-0 bg-slate-950/80 text-[10px] text-amber-300 text-center font-bold">
+              {sachetCount}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- 28 DOMINO TILES ON THE BOARD --- */}
+      <div className="absolute inset-0 flex items-center justify-center z-40">
+        {tiles.map((tile) => {
+          return (
             <motion.div
               key={tile.id}
               animate={{
@@ -337,41 +298,41 @@ export const TileShuffler: React.FC<TileShufflerProps> = ({
                 scale: tile.scale,
                 opacity: tile.opacity,
               }}
-              transition={
-                shuffling
-                  ? { type: 'spring', stiffness: 220, damping: 15 }
-                  : { type: 'spring', stiffness: 260, damping: 22 }
-              }
-              style={{ x: tile.x, y: tile.y, rotate: tile.rotate }}
-              className="absolute w-10 h-16 sm:w-11 sm:h-18 rounded-lg shrink-0 select-none flex items-center justify-center bg-white border-2 border-slate-300 shadow-lg z-20"
-            />
-          ))}
-        </div>
+              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+              style={{
+                position: 'absolute',
+                zIndex: tile.zIndex,
+              }}
+              className="shrink-0 select-none cursor-default"
+            >
+              {tile.isPickedByHuman && tile.isFlipped && tile.tileObj ? (
+                /* HUMAN REVEALED FACE-UP TILE IN RACK */
+                <div className="transform scale-100 shadow-2xl transition-transform border-2 border-slate-200 rounded-lg overflow-hidden">
+                  <DominoTile
+                    tile={tile.tileObj}
+                    small={true}
+                    width={38}
+                    height={68}
+                  />
+                </div>
+              ) : (
+                /* FACE-DOWN WHITE TILE BACK */
+                <div className="transition-all">
+                  <DominoTile
+                    tile={{ ...createTile(0, 0), id: `back_${tile.id}` }}
+                    flipped={true}
+                    small={true}
+                    width={36}
+                    height={60}
+                  />
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Controller / Progress Status at Bottom */}
-      <div className="w-full max-w-sm flex flex-col items-center gap-3 pb-6 z-10 select-none px-4">
-        {/* Progress label */}
-        <div className="text-blue-200 text-xs font-semibold tracking-wider uppercase animate-pulse">
-          {shuffling 
-            ? (isAr ? 'جاري خلط القطع...' : 'Mélange des dominos...') 
-            : isDealing 
-            ? (isAr ? 'جاري توزيع القطع...' : 'Distribution...') 
-            : (isAr ? 'تجهيز اللعبة...' : 'Préparation du jeu...')}
-        </div>
 
-        {/* Shuffling progress bar */}
-        <div className="w-full">
-          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-            <motion.div
-              className="h-full bg-gradient-to-r from-blue-600 via-blue-400 to-white"
-              initial={{ width: '0%' }}
-              animate={{ width: `${progress}%` }}
-              transition={{ ease: 'easeOut', duration: 0.2 }}
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
