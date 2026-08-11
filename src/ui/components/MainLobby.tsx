@@ -107,9 +107,9 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
             <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all pointer-events-none" />
 
             <div className="flex items-center justify-between">
-              <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-2xl sm:text-4xl shadow-sm">
+              <span className="text-3xl sm:text-4xl">
                 🌐
-              </div>
+              </span>
               <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-100 text-blue-900 text-[9px] sm:text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm">
                 Multijoueur
               </span>
@@ -135,9 +135,9 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/15 rounded-full blur-2xl group-hover:bg-blue-400/25 transition-all pointer-events-none" />
 
             <div className="flex items-center justify-between">
-              <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl sm:text-4xl shadow-md">
+              <span className="text-3xl sm:text-4xl">
                 🤖
-              </div>
+              </span>
               <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-600 text-white text-[9px] sm:text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm">
                 Prêt à Jouer
               </span>
