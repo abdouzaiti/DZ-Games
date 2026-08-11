@@ -17,6 +17,7 @@ interface TileShufflerProps {
   allPlayersHands?: Tile[][];
   sachetStock?: Tile[];
   onComplete: () => void;
+  isHost?: boolean;
 }
 
 interface TileState {
@@ -46,6 +47,7 @@ export const TileShuffler: React.FC<TileShufflerProps> = ({
   allPlayersHands = [],
   sachetStock = [],
   onComplete,
+  isHost = true,
 }) => {
   const isAr = language === 'ar';
 

@@ -15,6 +15,7 @@ interface ScoreBoardProps {
   onOpenSettings?: () => void;
   onNewMatch?: () => void;
   language?: string;
+  isMultiplayer?: boolean;
 }
 
 export const ScoreBoard: React.FC<ScoreBoardProps> = ({
@@ -25,6 +26,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   onOpenSettings,
   onNewMatch,
   language = 'fr',
+  isMultiplayer = false,
 }) => {
   const { config, matchScores, roundNumber, stock, players, currentPlayerIndex } = snapshot;
   const is2v2 = config.mode === '2v2';
@@ -52,7 +54,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
           <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm ${
             isActive ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-slate-900 text-blue-300 border border-slate-700'
           }`}>
-            {p.isAI ? '🤖' : userAvatar}
+            {p.isAI ? '🤖' : (indexInPlayers === 0 ? userAvatar : '👤')}
           </div>
         </div>
 

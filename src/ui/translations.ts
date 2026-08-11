@@ -16,6 +16,14 @@ export interface Translations {
   onlineDesc: string;
   comingSoon: string;
   close: string;
+  createRoom: string;
+  joinRoom: string;
+  enterRoomCode: string;
+  invalidRoomCode: string;
+  waitingForPlayers: string;
+  ready: string;
+  startGame: string;
+  playersConnected: string;
   settingsTitle: string;
   music: string;
   soundEffects: string;
@@ -58,9 +66,17 @@ export const translations: Record<Language, Translations> = {
     playOffline: 'Hors ligne vs AI',
     playOfflineSub: 'Partie rapide contre le robot IA',
     onlineTitle: 'Jouer en Ligne - Multijoueur',
-    onlineDesc: 'Les serveurs multijoueurs sont en cours de préparation. Profitez immédiatement du mode Hors ligne vs AI à 100%.',
-    comingSoon: 'Bientôt disponible (V2)',
+    onlineDesc: 'Défiez vos amis ou des joueurs du monde entier sur les serveurs V2.',
+    comingSoon: 'Disponible en V2',
     close: 'Fermer',
+    createRoom: 'Créer une salle',
+    joinRoom: 'Rejoindre une salle',
+    enterRoomCode: 'Entrez le code de la salle',
+    invalidRoomCode: 'Code invalide ou salle pleine',
+    waitingForPlayers: 'En attente de joueurs...',
+    ready: 'Prêt',
+    startGame: 'Lancer la partie',
+    playersConnected: 'joueurs connectés',
     settingsTitle: 'Paramètres du Jeu',
     music: 'Musique',
     soundEffects: 'Effets sonores',
@@ -101,9 +117,17 @@ export const translations: Record<Language, Translations> = {
     playOffline: 'بدون إنترنت ضد الذكاء الاصطناعي',
     playOfflineSub: 'مباراة سريعة ضد الذكاء الاصطناعي',
     onlineTitle: 'اللعب عبر الإنترنت - اللعب الجماعي',
-    onlineDesc: 'خوادم اللعب الجماعي قيد التطوير حالياً. يمكنك الاستمتاع باللعب كاملاً بدون إنترنت ضد الذكاء الاصطناعي.',
-    comingSoon: 'قريباً (الإصدار الثاني)',
+    onlineDesc: 'تحدى أصدقاءك أو لاعبين من جميع أنحاء العالم في الإصدار الثاني.',
+    comingSoon: 'متوفر الآن (V2)',
     close: 'إغلاق',
+    createRoom: 'إنشاء غرفة',
+    joinRoom: 'انضمام لغرفة',
+    enterRoomCode: 'أدخل رمز الغرفة',
+    invalidRoomCode: 'الرمز غير صحيح أو الغرفة ممتلئة',
+    waitingForPlayers: 'في انتظار اللاعبين...',
+    ready: 'جاهز',
+    startGame: 'بدء اللعبة',
+    playersConnected: 'لاعبين متصلين',
     settingsTitle: 'إعدادات اللعبة',
     music: 'الموسيقى',
     soundEffects: 'المؤثرات الصوتية',
@@ -144,9 +168,17 @@ export const translations: Record<Language, Translations> = {
     playOffline: 'Offline vs AI',
     playOfflineSub: 'Quick match against AI bot',
     onlineTitle: 'Play Online - Multiplayer',
-    onlineDesc: 'Multiplayer servers are currently under development. Enjoy 100% offline play against smart AI.',
-    comingSoon: 'Coming Soon (V2)',
+    onlineDesc: 'Challenge your friends or players from around the world in V2.',
+    comingSoon: 'Available now (V2)',
     close: 'Close',
+    createRoom: 'Create Room',
+    joinRoom: 'Join Room',
+    enterRoomCode: 'Enter Room Code',
+    invalidRoomCode: 'Invalid code or room full',
+    waitingForPlayers: 'Waiting for players...',
+    ready: 'Ready',
+    startGame: 'Start Game',
+    playersConnected: 'players connected',
     settingsTitle: 'Game Settings',
     music: 'Music',
     soundEffects: 'Sound Effects',

@@ -21,6 +21,7 @@ interface MainLobbyProps {
   onUpdateSettings: (newSettings: Partial<AppSettings>) => void;
   onUpdateProfile: (newProfile: UserProfile) => void;
   onStartOfflineMatch: (config: GameConfig) => void;
+  onJoinMatch: (matchId: string, playerId: string) => void;
 }
 
 export const MainLobby: React.FC<MainLobbyProps> = ({
@@ -30,6 +31,7 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
   onUpdateSettings,
   onUpdateProfile,
   onStartOfflineMatch,
+  onJoinMatch,
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
@@ -210,10 +212,15 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
       <OnlinePlayModal
         isOpen={isOnlineOpen}
         language={settings.language}
+        profile={profile}
         onClose={() => setIsOnlineOpen(false)}
         onPlayOfflineFallback={() => {
           setIsOnlineOpen(false);
           setIsMatchSetupOpen(true);
+        }}
+        onJoinMatch={(id, pId) => {
+          setIsOnlineOpen(false);
+          onJoinMatch(id, pId);
         }}
       />
 

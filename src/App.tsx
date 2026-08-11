@@ -26,6 +26,7 @@ import { SettingsModal, AppSettings } from './ui/components/SettingsModal';
 import { ProfileModal, UserProfile } from './ui/components/ProfileModal';
 import { TileShuffler } from './ui/components/TileShuffler';
 import { GameStock } from './ui/components/GameStock';
+import { MultiplayerRoom } from './ui/components/MultiplayerRoom';
 import { getTranslation } from './ui/translations';
 import { audioController } from './ui/utils/audio';
 
@@ -34,7 +35,9 @@ export default function App() {
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 
   const [hasEntered, setHasEntered] = useState<boolean>(false);
-  const [activeView, setActiveView] = useState<'lobby' | 'game'>('lobby');
+  const [activeView, setActiveView] = useState<'lobby' | 'game' | 'multiplayer'>('lobby');
+  const [matchId, setMatchId] = useState<string | null>(null);
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
   // App Settings & User Profile State (with LocalStorage persistence)
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -266,6 +269,12 @@ export default function App() {
     }
   };
 
+  const handleJoinMatch = (id: string, pId: string) => {
+    setMatchId(id);
+    setMyPlayerId(pId);
+    setActiveView('multiplayer');
+  };
+
   // STEP 1: Intro Screen
   if (!hasEntered) {
     return <IntroScreen onEnter={() => setHasEntered(true)} />;
@@ -281,6 +290,20 @@ export default function App() {
         onUpdateSettings={handleUpdateSettings}
         onUpdateProfile={handleUpdateProfile}
         onStartOfflineMatch={handleStartMatch}
+        onJoinMatch={handleJoinMatch}
+      />
+    );
+  }
+
+  // STEP 2.5: Multiplayer Room
+  if (activeView === 'multiplayer' && matchId && myPlayerId) {
+    return (
+      <MultiplayerRoom
+        matchId={matchId}
+        myPlayerId={myPlayerId}
+        settings={settings}
+        profile={profile}
+        onExit={() => setActiveView('lobby')}
       />
     );
   }
