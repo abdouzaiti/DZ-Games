@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { GameSnapshot } from '../../domain/gameState';
+import leatherPouchImg from '../../assets/images/leather_domino_pouch_1786418367291.jpg';
 
 interface ScoreBoardProps {
   snapshot: GameSnapshot;
@@ -120,15 +121,15 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
         {/* Separator before sachet */}
         <div className="h-5 w-[1px] bg-slate-700/80 mx-0.5 sm:mx-1 shrink-0" />
 
-        {/* Sachet de Dominos (Bag of tiles) - WHITE TRIGGER WHEN PLAYABLE */}
+        {/* Sachet de Dominos (Bag of tiles) */}
         <button
           type="button"
           onClick={onSachetClick}
           disabled={!canDraw}
-          className={`flex items-center p-1 rounded-xl border transition-all select-none relative ${
+          className={`relative flex items-center justify-center p-0.5 sm:p-1 transition-all select-none ${
             canDraw
-              ? 'bg-white border-2 border-blue-400 text-slate-900 cursor-pointer hover:bg-blue-50 hover:scale-105 shadow-[0_0_20px_rgba(59,130,246,0.5)] ring-2 ring-blue-300 animate-pulse'
-              : 'bg-slate-800/40 border-slate-700/50 text-slate-400 cursor-not-allowed opacity-50'
+              ? 'hover:scale-110 active:scale-95 animate-pulse cursor-pointer'
+              : 'opacity-40 cursor-not-allowed'
           }`}
           title={
             canDraw
@@ -136,14 +137,17 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               : (stock.length === 0 ? "Vide" : stock.length === 1 ? "1 domino" : `${stock.length} dominos`)
           }
         >
-          <div className="relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-base sm:text-lg border border-blue-200 shadow-sm">
-            👝
-            {stock.length > 0 && (
-              <span className={`absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-white font-black text-[9px] shadow-sm ${canDraw ? 'bg-blue-600' : 'bg-slate-600'}`}>
-                {stock.length}
-              </span>
-            )}
-          </div>
+          <img
+            src={leatherPouchImg}
+            alt="كيس جلد بني"
+            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded-xl border border-amber-800/60 shadow-md"
+            referrerPolicy="no-referrer"
+          />
+          {stock.length > 0 && (
+            <span className={`absolute -top-1 -right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full text-white font-black text-[9px] sm:text-[10px] shadow-md border border-slate-900 ${canDraw ? 'bg-blue-500' : 'bg-slate-600'}`}>
+              {stock.length}
+            </span>
+          )}
         </button>
       </div>
     </div>

@@ -31,10 +31,20 @@ export const DrawingTableModal: React.FC<DrawingTableModalProps> = ({
 }) => {
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
 
-  if (!isOpen) return null;
-
   const isAr = language === 'ar';
   const isPlayable = lastDrawnTile ? playableTileIds.includes(lastDrawnTile.id) : false;
+
+  // Automatically return to main gameplay board when a playable tile is found
+  React.useEffect(() => {
+    if (isOpen && lastDrawnTile && isPlayable) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, lastDrawnTile, isPlayable, onClose]);
+
+  if (!isOpen) return null;
 
   const handleTileClick = (index: number) => {
     if (lastDrawnTile && isPlayable) return; // Wait for user to play the drawn playable tile
