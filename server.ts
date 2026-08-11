@@ -38,7 +38,11 @@ async function startServer() {
       app.get("*", (req, res) => {
         const indexPath = path.join(distPath, "index.html");
         if (fs.existsSync(indexPath)) {
-          res.sendFile(indexPath);
+          let content = fs.readFileSync(indexPath, "utf8");
+          // Inject runtime env vars for Supabase
+          const envScript = `<script>window._env_ = { SUPABASE_URL: "${process.env.SUPABASE_URL || ''}", SUPABASE_KEY: "${process.env.SUPABASE_KEY || ''}" };</script>`;
+          content = content.replace('<head>', `<head>${envScript}`);
+          res.send(content);
         } else {
           console.error(`[Server] index.html not found at: ${indexPath}`);
           res.status(404).send("Build index.html not found");

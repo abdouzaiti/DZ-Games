@@ -38,6 +38,7 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
   const [match, setMatch] = useState<MatchRoom | null>(null);
   const [players, setPlayers] = useState<PlayerSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -52,8 +53,28 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
     let matchSub: any;
     let playersSub: any;
 
-    const init = async () => {
+    const init = async (retries = 3) => {
       try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch initial state
+        const initialMatch = await multiplayerService.getMatch(matchId);
+        const initialPlayers = await multiplayerService.getPlayers(matchId);
+        
+        if (!initialMatch) {
+          if (retries > 0) {
+            console.log(`Match not found, retrying... (${retries} attempts left)`);
+            setTimeout(() => init(retries - 1), 1000);
+            return;
+          }
+          throw new Error("Cette salle n'existe plus.");
+        }
+
+        setMatch(initialMatch);
+        setPlayers(initialPlayers);
+
+        // Subscribe to changes
         matchSub = multiplayerService.subscribeToMatch(matchId, (updatedMatch) => {
           setMatch(updatedMatch);
         });
@@ -62,9 +83,10 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
         });
 
         setLoading(false);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to join multiplayer room', err);
-        onExit();
+        setError(err.message || "Erreur de connexion au serveur.");
+        setLoading(false);
       }
     };
 
@@ -122,6 +144,28 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
       (engine as any).notifyListeners();
     }
   }, [snapshot, engine]);
+
+  if (error) {
+    return (
+      <div className="h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-6">
+        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">!</div>
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-white font-serif italic text-xl font-black">Oups ! Problème de connexion</h2>
+          <p className="text-slate-400 text-sm max-w-xs mx-auto">
+            {error}
+          </p>
+        </div>
+        <button 
+          onClick={onExit}
+          className="px-8 py-3 bg-white text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-50 transition-colors"
+        >
+          Retour au menu
+        </button>
+      </div>
+    );
+  }
 
   if (loading || !match) {
     return (

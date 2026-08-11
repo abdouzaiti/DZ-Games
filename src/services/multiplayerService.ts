@@ -135,22 +135,56 @@ export const multiplayerService = {
     if (error) throw error;
   },
 
-  subscribeToMatch(matchId: string, onUpdate: (match: MatchRoom) => void) {
+  async getMatch(matchId: string): Promise<MatchRoom | null> {
     this.checkEnabled();
-    return supabase!
-      .channel(`match:${matchId}`)
+    const { data, error } = await supabase!
+      .from('matches')
+      .select()
+      .eq('id', matchId)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getPlayers(matchId: string): Promise<PlayerSession[]> {
+    this.checkEnabled();
+    const { data, error } = await supabase!
+      .from('players')
+      .select()
+      .eq('match_id', matchId)
+      .order('slot_index', { ascending: true });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  subscribeToMatch(matchId: string, onUpdate: (match: MatchRoom) => void) {
+    if (!supabase) return { unsubscribe: () => {} };
+    // Use a unique channel ID to avoid "already subscribed" errors on rapid re-renders
+    const channelId = `match:${matchId}:${Math.random().toString(36).substring(7)}`;
+    const channel = supabase
+      .channel(channelId)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'matches', filter: `id=eq.${matchId}` },
         (payload) => onUpdate(payload.new as MatchRoom)
-      )
-      .subscribe();
+      );
+
+    channel.subscribe();
+
+    return {
+      unsubscribe: () => {
+        supabase.removeChannel(channel);
+      }
+    };
   },
 
   subscribeToPlayers(matchId: string, onUpdate: (players: PlayerSession[]) => void) {
-    this.checkEnabled();
-    return supabase!
-      .channel(`players:${matchId}`)
+    if (!supabase) return { unsubscribe: () => {} };
+    const channelId = `players:${matchId}:${Math.random().toString(36).substring(7)}`;
+    const channel = supabase
+      .channel(channelId)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'players', filter: `match_id=eq.${matchId}` },
@@ -162,7 +196,14 @@ export const multiplayerService = {
             .order('slot_index', { ascending: true });
           if (data) onUpdate(data as PlayerSession[]);
         }
-      )
-      .subscribe();
+      );
+
+    channel.subscribe();
+
+    return {
+      unsubscribe: () => {
+        supabase.removeChannel(channel);
+      }
+    };
   }
 };
