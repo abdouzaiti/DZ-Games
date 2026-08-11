@@ -302,7 +302,7 @@ export default function App() {
   return (
     <div
       dir={settings.language === 'ar' ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white"
+      className="h-[100dvh] w-full bg-slate-900 text-slate-100 flex flex-col font-sans overflow-hidden selection:bg-blue-500 selection:text-white"
     >
       {/* Dynamic Toast / Notification Banner */}
       <AnimatePresence>
@@ -328,7 +328,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Main Playing Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-5 flex flex-col">
+      <main className="flex-1 min-h-0 max-w-7xl w-full mx-auto p-2 sm:p-4 flex flex-col justify-between overflow-hidden">
         {/* Score Board Header with Integrated AI & Player Stats */}
         <ScoreBoard
           snapshot={snapshot}

@@ -161,13 +161,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-[340px] sm:min-h-[380px] p-3 sm:p-6 flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full flex-1 min-h-0 p-1 sm:p-4 flex flex-col items-center justify-center overflow-hidden"
     >
 
       {/* Empty Board State */}
       {board.chain.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-blue-200 space-y-3 z-10 py-12 sm:py-16 px-2">
-          <p className="text-xs sm:text-sm font-medium text-white text-center max-w-sm">
+        <div className="flex flex-col items-center justify-center text-blue-200 space-y-3 z-10 py-8 sm:py-16 px-2">
+          <p className="text-xs sm:text-sm font-medium text-white text-center max-w-sm leading-relaxed">
             The Mostaganem café table is clear. Select a tile from your hand to open the round!
           </p>
           {selectedTileId && (
@@ -185,7 +185,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       ) : (
         <div
-          className="z-10 w-full overflow-x-auto overflow-y-auto max-h-[380px] sm:max-h-[460px] flex justify-center transition-transform duration-200 scrollbar-thin scrollbar-thumb-[#D4A373]/30"
+          className="z-10 w-full h-full max-h-full overflow-x-auto overflow-y-auto flex items-center justify-center transition-transform duration-200 scrollbar-thin scrollbar-thumb-[#D4A373]/30"
           style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
         >
           {renderSnakeChain()}

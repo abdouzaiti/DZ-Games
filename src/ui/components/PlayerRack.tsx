@@ -68,16 +68,16 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
   const isAr = language === 'ar';
 
   return (
-    <div className="w-full flex flex-col items-center gap-3.5 relative select-none">
+    <div className="w-full flex flex-col items-center gap-1.5 sm:gap-3 relative select-none shrink-0">
       {/* Actions and Status Center */}
       {isCurrentTurn && (
-        <div className="flex flex-col items-center gap-2 mb-1">
+        <div className="flex flex-col items-center gap-1">
           {canPass && (
             <div className="flex flex-wrap items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={onPass}
-                className="h-10 px-6 bg-white hover:bg-blue-50 active:scale-95 text-blue-950 font-extrabold rounded-2xl text-xs uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border-2 border-blue-300"
+                className="h-8 sm:h-10 px-4 sm:px-6 bg-white hover:bg-blue-50 active:scale-95 text-blue-950 font-extrabold rounded-xl sm:rounded-2xl text-[11px] sm:text-xs uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer border-2 border-blue-300"
               >
                 <span>⏭️</span> {isAr ? 'تخطي الدور' : 'Sauter le Tour'}
               </button>
@@ -85,7 +85,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
           )}
 
           {canDraw && (
-            <p className="text-[10px] text-blue-300 font-bold uppercase tracking-widest animate-pulse mt-1">
+            <p className="text-[9px] sm:text-[10px] text-blue-300 font-bold uppercase tracking-widest animate-pulse mt-0.5">
               {isAr ? 'لا توجد حركات متاحة • انقر على السلة أعلاه لتسحب !' : 'Aucun coup possible • Cliquez sur le sachet ci-dessus pour piocher !'}
             </p>
           )}
@@ -93,7 +93,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
       )}
 
       {/* Tiles Displayed Directly on the Main Board Base */}
-      <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap max-w-full py-2">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 flex-wrap max-w-full py-1 sm:py-2">
         <AnimatePresence mode="popLayout">
           {player.hand.map((tile) => {
             const isPlayable = playableTileIds.includes(tile.id);
