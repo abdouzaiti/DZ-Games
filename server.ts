@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import * as dotenv from "dotenv";
 import fs from "fs";
 
@@ -18,11 +17,15 @@ async function startServer() {
   });
 
   const isProd = process.env.NODE_ENV === "production";
-  const distPath = path.resolve(process.cwd(), 'dist');
+  
+  // In production, server.cjs is located inside the dist folder
+  const distPath = isProd ? __dirname : path.resolve(process.cwd(), "dist");
 
-  console.log(`[Server] Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}`);
+  console.log(`[Server] Mode: ${isProd ? "PRODUCTION" : "DEVELOPMENT"}`);
+  console.log(`[Server] Base Path: ${distPath}`);
 
   if (!isProd) {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -32,18 +35,19 @@ async function startServer() {
     if (fs.existsSync(distPath)) {
       console.log(`[Server] Serving static files from: ${distPath}`);
       app.use(express.static(distPath));
-      app.get('*', (req, res) => {
-        const indexPath = path.join(distPath, 'index.html');
+      app.get("*", (req, res) => {
+        const indexPath = path.join(distPath, "index.html");
         if (fs.existsSync(indexPath)) {
           res.sendFile(indexPath);
         } else {
-          res.status(404).send('Build index.html not found');
+          console.error(`[Server] index.html not found at: ${indexPath}`);
+          res.status(404).send("Build index.html not found");
         }
       });
     } else {
       console.error(`[Server] CRITICAL: dist folder not found at ${distPath}`);
-      app.get('*', (req, res) => {
-        res.status(500).send('Application build missing. Please run build script.');
+      app.get("*", (req, res) => {
+        res.status(500).send("Application build missing. Please run build script.");
       });
     }
   }
