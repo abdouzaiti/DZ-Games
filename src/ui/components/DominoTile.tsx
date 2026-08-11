@@ -71,11 +71,9 @@ export const DominoTile: React.FC<DominoTileProps> = ({
   if (flipped) {
     return (
       <div
-        className={`rounded-lg bg-[#1B1410] border-2 border-[#3D322A] shadow-md flex items-center justify-center`}
+        className={`rounded-lg bg-white border-2 border-slate-300 shadow-md flex items-center justify-center`}
         style={width && height ? { width, height } : undefined}
-      >
-        <div className="w-2 h-2 rounded-full bg-[#D4A373]/50" />
-      </div>
+      />
     );
   }
 

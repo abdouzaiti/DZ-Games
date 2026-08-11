@@ -142,6 +142,16 @@ export default function App() {
   const activePlayer = TurnManager.getActivePlayer(snapshot.players, snapshot.currentPlayerIndex);
   const isHumanTurn = activePlayer.id === humanPlayer.id && snapshot.roundStatus === 'PLAYING';
 
+  // Compute playable tiles in human player's hand
+  const validMoves = useMemo(() => {
+    if (!isHumanTurn) return [];
+    return MostaganemRulesEngine.getValidMoves(humanPlayer.hand, snapshot.board, snapshot.requiredOpeningTileId);
+  }, [isHumanTurn, humanPlayer.hand, snapshot.board, snapshot.requiredOpeningTileId]);
+
+  const playableTileIds = useMemo(() => {
+    return validMoves.map((m) => m.tile.id);
+  }, [validMoves]);
+
   // Initialize and track hand length to detect newly drawn tiles
   useEffect(() => {
     if (!humanPlayer) return;
@@ -159,16 +169,6 @@ export default function App() {
       setLastDrawnTile(null);
     }
   }, [isDrawingTableOpen, isHumanTurn]);
-
-  // Compute playable tiles in human player's hand
-  const validMoves = useMemo(() => {
-    if (!isHumanTurn) return [];
-    return MostaganemRulesEngine.getValidMoves(humanPlayer.hand, snapshot.board, snapshot.requiredOpeningTileId);
-  }, [isHumanTurn, humanPlayer.hand, snapshot.board, snapshot.requiredOpeningTileId]);
-
-  const playableTileIds = useMemo(() => {
-    return validMoves.map((m) => m.tile.id);
-  }, [validMoves]);
 
   // Compute valid ends for selected tile
   const validEndsForSelectedTile = useMemo((): PlacementEnd[] => {
@@ -302,7 +302,7 @@ export default function App() {
   return (
     <div
       dir={settings.language === 'ar' ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#1B1410] text-[#FEFAE0] flex flex-col font-sans selection:bg-[#D4A373] selection:text-[#1B1410]"
+      className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white"
     >
       {/* Dynamic Toast / Notification Banner */}
       <AnimatePresence>
@@ -312,14 +312,14 @@ export default function App() {
             animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
             exit={{ opacity: 0, y: -20, scale: 0.9, x: '-50%' }}
             transition={{ type: 'spring', damping: 20, stiffness: 250 }}
-            className="fixed top-6 left-1/2 z-50 px-5 py-3.5 bg-[#D4A373] text-[#1B1410] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.6)] flex items-center gap-3 max-w-sm w-[90%] font-black text-xs uppercase tracking-wider select-none border border-[#FEFAE0]"
+            className="fixed top-6 left-1/2 z-50 px-5 py-3.5 bg-white text-slate-900 rounded-2xl shadow-[0_8px_30px_rgba(15,23,42,0.4)] flex items-center gap-3 max-w-sm w-[90%] font-extrabold text-xs uppercase tracking-wider select-none border-2 border-blue-300"
           >
             <span className="text-sm">⚠️</span>
-            <span className="flex-1 font-sans leading-relaxed">{notification}</span>
+            <span className="flex-1 font-sans leading-relaxed text-blue-950">{notification}</span>
             <button
               type="button"
               onClick={() => setNotification(null)}
-              className="text-[#1B1410]/70 hover:text-[#1B1410] font-black text-[10px] px-1.5 py-0.5 rounded hover:bg-[#1B1410]/10 transition-colors"
+              className="text-slate-500 hover:text-slate-900 font-black text-[10px] px-1.5 py-0.5 rounded hover:bg-blue-50 transition-colors"
             >
               ✕
             </button>
@@ -354,6 +354,7 @@ export default function App() {
             language={settings.language}
             soundEffects={settings.soundEffects}
             vibration={settings.vibration}
+            playerCount={snapshot.players.length || 2}
             onComplete={() => setIsShuffling(false)}
           />
         ) : (

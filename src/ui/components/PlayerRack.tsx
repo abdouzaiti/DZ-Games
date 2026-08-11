@@ -77,7 +77,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
               <button
                 type="button"
                 onClick={onPass}
-                className="h-9 px-5 bg-[#A98467] hover:bg-[#8d6c52] active:scale-95 text-[#FEFAE0] font-black rounded-xl text-xs uppercase tracking-wider shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-[#3D322A]"
+                className="h-10 px-6 bg-white hover:bg-blue-50 active:scale-95 text-blue-950 font-extrabold rounded-2xl text-xs uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border-2 border-blue-300"
               >
                 <span>⏭️</span> {isAr ? 'تخطي الدور' : 'Sauter le Tour'}
               </button>
@@ -85,7 +85,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
           )}
 
           {canDraw && (
-            <p className="text-[10px] text-[#A98467] font-black uppercase tracking-widest animate-pulse mt-1">
+            <p className="text-[10px] text-blue-300 font-bold uppercase tracking-widest animate-pulse mt-1">
               {isAr ? 'لا توجد حركات متاحة • انقر على السلة أعلاه لتسحب !' : 'Aucun coup possible • Cliquez sur le sachet ci-dessus pour piocher !'}
             </p>
           )}
@@ -113,7 +113,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
                 transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                 className={`relative shrink-0 rounded-lg flex items-center justify-center transition-all duration-300 ${
                   isCurrentTurn && isPlayable
-                    ? 'ring-2 ring-[#D4A373] ring-offset-2 ring-offset-[#1B1410] shadow-[0_0_12px_rgba(212,163,115,0.3)]'
+                    ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-[0_0_15px_rgba(59,130,246,0.5)]'
                     : 'opacity-90'
                 }`}
                 style={{ width: tileW, height: tileH }}

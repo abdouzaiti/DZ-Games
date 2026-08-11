@@ -46,26 +46,30 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
         key={p.id}
         className={`px-2.5 py-1.5 rounded-xl border transition-all flex items-center gap-2 ${
           isActive
-            ? 'bg-[#2D241E] border-[#D4A373] shadow-md ring-1 ring-[#D4A373]/30'
-            : 'bg-[#2D241E]/40 border-[#3D322A]'
+            ? 'bg-white text-slate-900 border-2 border-blue-400 shadow-md ring-2 ring-blue-300/50'
+            : 'bg-slate-800/80 border-slate-700/80 text-slate-200'
         }`}
       >
         {/* Player Avatar */}
         <div className="relative shrink-0">
-          <div className="w-7 h-7 rounded-full bg-[#1B1410] border border-[#D4A373]/30 flex items-center justify-center font-bold text-[#D4A373] text-sm">
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm ${
+            isActive ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-slate-900 text-blue-300 border border-slate-700'
+          }`}>
             {p.isAI ? '🤖' : userAvatar}
           </div>
         </div>
 
         {/* Player Name */}
         <div className="flex flex-col min-w-[50px] max-w-[80px]">
-          <span className="text-[11px] font-bold text-[#FEFAE0] truncate leading-tight">
+          <span className={`text-[11px] font-bold truncate leading-tight ${isActive ? 'text-slate-900' : 'text-slate-100'}`}>
             {p.name}
           </span>
         </div>
 
         {/* Score in a small circle */}
-        <div className="w-5.5 h-5.5 rounded-full bg-[#D4A373] text-[#1B1410] font-black text-[10px] flex items-center justify-center shadow-sm shrink-0">
+        <div className={`w-5.5 h-5.5 rounded-full font-black text-[10px] flex items-center justify-center shadow-sm shrink-0 ${
+          isActive ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+        }`}>
           {score}
         </div>
       </div>
@@ -78,30 +82,23 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
       <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 w-full relative z-10">
         {humanPlayer && renderPlayerCard(humanPlayer, 0)}
         
-        {/* Visual separator or VS on 1v1 */}
-        {config.mode === '1v1' && (
-          <span className="text-[10px] text-[#A98467] font-black px-1.5 uppercase tracking-widest select-none">
-            vs
-          </span>
-        )}
-        
         {/* Render other AI players */}
         <div className="flex items-center gap-2">
           {aiPlayers.map((p, idx) => renderPlayerCard(p, idx + 1))}
         </div>
 
         {/* Separator before sachet */}
-        <div className="h-6 w-[1px] bg-[#3D322A] mx-1 sm:mx-2 shrink-0" />
+        <div className="h-6 w-[1px] bg-slate-700 mx-1 sm:mx-2 shrink-0" />
 
-        {/* Sachet de Dominos (Bag of tiles) */}
+        {/* Sachet de Dominos (Bag of tiles) - WHITE TRIGGER WHEN PLAYABLE */}
         <button
           type="button"
           onClick={onSachetClick}
           disabled={!canDraw}
           className={`flex items-center p-1.5 rounded-xl border transition-all select-none relative ${
             canDraw
-              ? 'bg-[#D4A373]/20 border-[#D4A373] text-[#FEFAE0] cursor-pointer hover:bg-[#D4A373]/30 hover:scale-105 shadow-[0_0_15px_rgba(212,163,115,0.45)] ring-2 ring-[#D4A373]/30 animate-pulse'
-              : 'bg-[#2D241E]/10 border-[#3D322A]/40 text-[#FEFAE0]/40 cursor-not-allowed opacity-50'
+              ? 'bg-white border-2 border-blue-400 text-slate-900 cursor-pointer hover:bg-blue-50 hover:scale-105 shadow-[0_0_20px_rgba(59,130,246,0.5)] ring-2 ring-blue-300 animate-pulse'
+              : 'bg-slate-800/40 border-slate-700/50 text-slate-400 cursor-not-allowed opacity-50'
           }`}
           title={
             canDraw
@@ -109,10 +106,10 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               : (stock.length === 0 ? "Vide" : stock.length === 1 ? "1 domino" : `${stock.length} dominos`)
           }
         >
-          <div className="relative flex items-center justify-center w-7 h-7 rounded-lg bg-[#1B1410] text-lg border border-[#D4A373]/20 shadow">
+          <div className="relative flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 text-lg border border-blue-200 shadow-sm">
             👝
             {stock.length > 0 && (
-              <span className={`absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[#1B1410] font-black text-[9px] shadow-sm ${canDraw ? 'bg-[#CCD5AE]' : 'bg-[#D4A373]'}`}>
+              <span className={`absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-white font-black text-[9px] shadow-sm ${canDraw ? 'bg-blue-600' : 'bg-slate-600'}`}>
                 {stock.length}
               </span>
             )}

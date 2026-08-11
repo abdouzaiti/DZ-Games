@@ -64,57 +64,65 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
   return (
     <div
       dir={settings.language === 'ar' ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#1B1410] text-[#FEFAE0] flex flex-col justify-between p-4 sm:p-8 relative overflow-x-hidden selection:bg-[#D4A373] selection:text-[#1B1410]"
+      className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between p-4 sm:p-8 relative overflow-x-hidden selection:bg-blue-500 selection:text-white"
     >
       {/* Background Decorative Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#3D322A_0%,_#1B1410_100%)] opacity-80 pointer-events-none" />
-      <div className="absolute inset-4 sm:inset-6 border border-dashed border-[#D4A373]/20 rounded-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1E3A8A_0%,_#0F172A_100%)] opacity-85 pointer-events-none" />
+      <div className="absolute inset-4 sm:inset-6 border border-blue-400/20 rounded-3xl pointer-events-none" />
 
       {/* TOP BAR HEADER */}
       <header className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between py-2">
         {/* App Title & Branding */}
         <div className="flex items-center gap-3">
+          <img
+            src="/mgc.png"
+            alt="Mosta Domino Logo"
+            className="w-10 h-10 object-contain rounded-xl border-2 border-blue-300 shadow-md bg-white p-1"
+            referrerPolicy="no-referrer"
+          />
+          <span className="font-serif italic font-extrabold text-xl text-white tracking-wide drop-shadow-sm">
+            Mosta Domino
+          </span>
         </div>
 
-        {/* Top Right SETTINGS Icon Trigger */}
+        {/* Top Right SETTINGS Icon Trigger - WHITE TRIGGER */}
         <button
           type="button"
           onClick={handleOpenSettings}
-          className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#2D241E] hover:bg-[#3D322A] active:scale-95 border-2 border-[#3D322A] hover:border-[#D4A373] flex items-center justify-center text-xl sm:text-2xl shadow-xl transition-all cursor-pointer group"
+          className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white hover:bg-blue-50 active:scale-95 border-2 border-blue-200 hover:border-blue-400 flex items-center justify-center text-xl sm:text-2xl shadow-lg transition-all cursor-pointer group text-slate-800"
           title={t.settingsTitle}
         >
           <span className="transition-transform group-hover:rotate-45">⚙️</span>
         </button>
       </header>
 
-      {/* CENTER GAMEPLAY TRIGGERS */}
+      {/* CENTER GAMEPLAY TRIGGERS - WHITE CARDS */}
       <main className="relative z-10 w-full max-w-3xl mx-auto my-auto py-8 sm:py-12 flex flex-col items-center justify-center space-y-6 sm:space-y-8 text-center">
-        {/* TWO BIG GAMEPLAY TRIGGERS */}
+        {/* TWO BIG WHITE GAMEPLAY TRIGGERS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full px-2">
           {/* Trigger 1: Jouer en ligne */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenOnline}
-            className="group relative bg-[#2D241E] hover:bg-[#322822] border-2 border-[#3D322A] hover:border-[#D4A373] p-6 sm:p-8 rounded-3xl text-left transition-all shadow-2xl cursor-pointer overflow-hidden flex flex-col justify-between min-h-[180px] sm:min-h-[220px]"
+            className="group relative bg-white hover:bg-blue-50/80 border-2 border-blue-200 hover:border-blue-400 p-6 sm:p-8 rounded-3xl text-left transition-all shadow-2xl shadow-blue-900/30 cursor-pointer overflow-hidden flex flex-col justify-between min-h-[180px] sm:min-h-[220px]"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4A373]/5 rounded-full blur-2xl group-hover:bg-[#D4A373]/15 transition-all pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all pointer-events-none" />
 
             <div className="flex items-center justify-between">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#1B1410] border border-[#D4A373]/40 flex items-center justify-center text-3xl sm:text-4xl shadow-inner">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-3xl sm:text-4xl shadow-sm">
                 🌐
               </div>
-              <span className="px-3 py-1 bg-[#CCD5AE] text-[#1B1410] text-[10px] font-black rounded-full uppercase tracking-wider shadow">
+              <span className="px-3 py-1 bg-blue-100 text-blue-900 text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm">
                 Multijoueur
               </span>
             </div>
 
             <div className="mt-6 space-y-1">
-              <h2 className="font-serif italic font-extrabold text-2xl sm:text-3xl text-[#FEFAE0] group-hover:text-[#D4A373] transition-colors flex items-center gap-2">
+              <h2 className="font-serif italic font-extrabold text-2xl sm:text-3xl text-slate-900 group-hover:text-blue-700 transition-colors flex items-center gap-2">
                 <span>{t.playOnline}</span>
-                <span className="text-xl transition-transform group-hover:translate-x-1">➔</span>
               </h2>
-              <p className="text-xs text-[#A98467] leading-relaxed">
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
                 {t.playOnlineSub}
               </p>
             </div>
@@ -125,25 +133,24 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenOffline}
-            className="group relative bg-gradient-to-br from-[#2D241E] to-[#3B2F27] border-2 border-[#D4A373] p-6 sm:p-8 rounded-3xl text-left transition-all shadow-2xl shadow-[#D4A373]/15 cursor-pointer overflow-hidden flex flex-col justify-between min-h-[180px] sm:min-h-[220px]"
+            className="group relative bg-white hover:bg-blue-50/80 border-2 border-blue-300 hover:border-blue-500 p-6 sm:p-8 rounded-3xl text-left transition-all shadow-2xl shadow-blue-900/30 cursor-pointer overflow-hidden flex flex-col justify-between min-h-[180px] sm:min-h-[220px]"
           >
-            <div className="absolute top-0 right-0 w-36 h-36 bg-[#D4A373]/20 rounded-full blur-2xl group-hover:bg-[#D4A373]/30 transition-all pointer-events-none" />
+            <div className="absolute top-0 right-0 w-36 h-36 bg-blue-400/15 rounded-full blur-2xl group-hover:bg-blue-400/25 transition-all pointer-events-none" />
 
             <div className="flex items-center justify-between">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4A373] text-[#1B1410] flex items-center justify-center text-3xl sm:text-4xl shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-3xl sm:text-4xl shadow-md">
                 🤖
               </div>
-              <span className="px-3 py-1 bg-[#D4A373] text-[#1B1410] text-[10px] font-black rounded-full uppercase tracking-wider shadow">
+              <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm">
                 Prêt à Jouer
               </span>
             </div>
 
             <div className="mt-6 space-y-1">
-              <h2 className="font-serif italic font-extrabold text-2xl sm:text-3xl text-[#FEFAE0] group-hover:text-[#D4A373] transition-colors flex items-center gap-2">
+              <h2 className="font-serif italic font-extrabold text-2xl sm:text-3xl text-slate-900 group-hover:text-blue-700 transition-colors flex items-center gap-2">
                 <span>{t.playOffline}</span>
-                <span className="text-xl transition-transform group-hover:translate-x-1">➔</span>
               </h2>
-              <p className="text-xs text-[#CCD5AE] font-medium leading-relaxed">
+              <p className="text-xs text-slate-600 font-medium leading-relaxed">
                 {t.playOfflineSub}
               </p>
             </div>
@@ -151,21 +158,21 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
         </div>
       </main>
 
-      {/* BOTTOM PLAYER IDENTITY CARD */}
+      {/* BOTTOM PLAYER IDENTITY CARD - WHITE TRIGGER */}
       <footer className="relative z-10 w-full max-w-5xl mx-auto py-2 flex justify-center">
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={handleOpenProfile}
-          className="group bg-[#2D241E] hover:bg-[#382D26] border-2 border-[#3D322A] hover:border-[#D4A373] px-5 py-3 rounded-2xl flex items-center gap-4 shadow-2xl transition-all cursor-pointer ring-1 ring-[#D4A373]/20"
+          className="group bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-400 px-5 py-3 rounded-2xl flex items-center gap-4 shadow-xl shadow-blue-950/20 transition-all cursor-pointer ring-1 ring-blue-100"
           title="Cliquez pour modifier votre profil"
         >
           {/* Avatar Picture */}
           <div className="relative">
-            <div className="w-12 h-12 rounded-2xl bg-[#1B1410] border-2 border-[#D4A373] flex items-center justify-center text-2xl shadow">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 border-2 border-blue-300 flex items-center justify-center text-2xl shadow-sm">
               {profile.avatar}
             </div>
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#CCD5AE] rounded-full border-2 border-[#1B1410] flex items-center justify-center text-[8px] font-black text-[#1B1410]">
+            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-black text-white">
               ✏️
             </span>
           </div>
@@ -173,14 +180,14 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
           {/* Player Name & Tag */}
           <div className="text-left">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base text-[#FEFAE0] group-hover:text-[#D4A373] transition-colors">
+              <span className="font-extrabold text-base text-slate-900 group-hover:text-blue-700 transition-colors">
                 {profile.name}
               </span>
-              <span className="px-2 py-0.5 bg-[#D4A373]/20 text-[#D4A373] text-[10px] font-black rounded uppercase">
+              <span className="px-2 py-0.5 bg-blue-100 text-blue-900 text-[10px] font-black rounded uppercase">
                 {t.profileTitle}
               </span>
             </div>
-            <p className="text-xs text-[#A98467] font-semibold mt-0.5">
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">
               Cliquez pour changer le nom et la photo
             </p>
           </div>

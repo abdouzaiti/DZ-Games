@@ -39,20 +39,20 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#1B1410]/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#1B1410] border-2 border-[#3D322A] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate-900 border-2 border-blue-400/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
         <div className="text-center space-y-1">
-          <h2 className="text-2xl font-serif italic font-black text-[#D4A373] tracking-wide">
+          <h2 className="text-2xl font-serif italic font-black text-white tracking-wide">
             Café Match Settings
           </h2>
-          <p className="text-xs text-[#A98467]">
+          <p className="text-xs text-blue-300">
             Configure Algerian Mostaganem rules & table mode
           </p>
         </div>
 
         {/* Mode Selector */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#A98467] block">
+          <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
             Select Game Mode
           </label>
           <div className="grid grid-cols-2 gap-2.5">
@@ -66,14 +66,14 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 key={m.id}
                 type="button"
                 onClick={() => setSelectedMode(m.id as GameMode)}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                   selectedMode === m.id
-                    ? 'bg-[#D4A373]/20 border-[#D4A373] text-[#FEFAE0] ring-1 ring-[#D4A373]'
-                    : 'bg-[#2D241E] border-[#3D322A] text-[#A98467] hover:border-[#D4A373]/50'
+                    ? 'bg-white text-blue-950 border-2 border-blue-400 shadow-md ring-2 ring-blue-300/50'
+                    : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-blue-400/50'
                 }`}
               >
-                <div className="font-bold text-sm text-[#FEFAE0]">{m.label}</div>
-                <div className="text-[11px] text-[#A98467]">{m.sub}</div>
+                <div className={`font-bold text-sm ${selectedMode === m.id ? 'text-blue-950' : 'text-white'}`}>{m.label}</div>
+                <div className={`text-[11px] ${selectedMode === m.id ? 'text-blue-800' : 'text-slate-400'}`}>{m.sub}</div>
               </button>
             ))}
           </div>
@@ -81,7 +81,7 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
 
         {/* Target Score */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#A98467] block">
+          <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
             Match Target Points
           </label>
           <div className="grid grid-cols-4 gap-2">
@@ -90,10 +90,10 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
                 key={score}
                 type="button"
                 onClick={() => setTargetScore(score)}
-                className={`py-2.5 rounded-xl font-black text-sm border transition-all cursor-pointer ${
+                className={`py-2.5 rounded-2xl font-black text-sm border transition-all cursor-pointer ${
                   targetScore === score
-                    ? 'bg-[#D4A373] text-[#1B1410] border-[#FEFAE0] shadow-md ring-1 ring-[#FEFAE0]'
-                    : 'bg-[#2D241E] border-[#3D322A] text-[#A98467] hover:border-[#D4A373]/50'
+                    ? 'bg-white text-blue-950 border-2 border-blue-400 shadow-md ring-2 ring-blue-300/50'
+                    : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-blue-400/50'
                 }`}
               >
                 {score} Pts
@@ -107,14 +107,14 @@ export const MatchSetupModal: React.FC<MatchSetupModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 bg-[#2D241E] hover:bg-[#3D322A] text-[#FEFAE0] font-bold rounded-xl text-sm cursor-pointer"
+            className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl text-sm cursor-pointer transition-colors border border-slate-700"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleStart}
-            className="flex-1 py-3 bg-[#D4A373] hover:bg-[#A98467] text-[#1B1410] font-black rounded-xl text-sm uppercase tracking-wider shadow-lg cursor-pointer"
+            className="flex-1 py-3 bg-white hover:bg-blue-50 text-blue-950 font-extrabold rounded-2xl text-sm uppercase tracking-wider shadow-lg cursor-pointer border-2 border-blue-300 transition-all"
           >
             Start Match
           </button>

@@ -92,29 +92,29 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   small
                 />
 
-                {/* Subtle glowing frame overlay (Cadre lumineux) for leftmost/rightmost tiles */}
+                {/* Subtle glowing frame overlay for leftmost/rightmost tiles */}
                 {selectedTileId && board.chain.length > 1 && (
                   <>
                     {isLeftmost && isLeftPlayable && (
                       <button
                         type="button"
                         onClick={() => onPlaceTile('LEFT')}
-                        className="absolute -inset-[3px] rounded-lg border-2 border-[#D4A373] shadow-[0_0_12px_rgba(212,163,115,0.7)] animate-pulse cursor-pointer z-30 transition-all hover:border-[#FEFAE0] hover:shadow-[0_0_16px_rgba(255,254,224,0.9)] focus:outline-none"
+                        className="absolute -inset-[3px] rounded-lg border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse cursor-pointer z-30 transition-all hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] focus:outline-none"
                         title={`Play Left [${board.leftEndPip}]`}
                       >
-                        <span className="absolute inset-0 rounded-[5px] bg-[#D4A373]/10" />
-                        <span className="absolute inset-0 rounded-[5px] border border-[#FEFAE0]/30 animate-ping pointer-events-none" />
+                        <span className="absolute inset-0 rounded-[5px] bg-blue-400/20" />
+                        <span className="absolute inset-0 rounded-[5px] border border-white/50 animate-ping pointer-events-none" />
                       </button>
                     )}
                     {isRightmost && isRightPlayable && (
                       <button
                         type="button"
                         onClick={() => onPlaceTile('RIGHT')}
-                        className="absolute -inset-[3px] rounded-lg border-2 border-[#D4A373] shadow-[0_0_12px_rgba(212,163,115,0.7)] animate-pulse cursor-pointer z-30 transition-all hover:border-[#FEFAE0] hover:shadow-[0_0_16px_rgba(255,254,224,0.9)] focus:outline-none"
+                        className="absolute -inset-[3px] rounded-lg border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse cursor-pointer z-30 transition-all hover:border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.9)] focus:outline-none"
                         title={`Play Right [${board.rightEndPip}]`}
                       >
-                        <span className="absolute inset-0 rounded-[5px] bg-[#D4A373]/10" />
-                        <span className="absolute inset-0 rounded-[5px] border border-[#FEFAE0]/30 animate-ping pointer-events-none" />
+                        <span className="absolute inset-0 rounded-[5px] bg-blue-400/20" />
+                        <span className="absolute inset-0 rounded-[5px] border border-white/50 animate-ping pointer-events-none" />
                       </button>
                     )}
                   </>
@@ -122,23 +122,23 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
                 {/* For 1-tile board, split clickable halves */}
                 {selectedTileId && board.chain.length === 1 && (
-                  <div className="absolute -inset-[3px] rounded-lg border-2 border-[#D4A373] shadow-[0_0_12px_rgba(212,163,115,0.7)] animate-pulse z-30 flex overflow-hidden">
+                  <div className="absolute -inset-[3px] rounded-lg border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse z-30 flex overflow-hidden">
                     {isLeftPlayable && (
                       <button
                         type="button"
                         onClick={() => onPlaceTile('LEFT')}
-                        className="flex-1 h-full bg-[#D4A373]/5 hover:bg-[#D4A373]/20 transition-colors duration-150 flex items-center justify-center text-[10px] font-black text-[#FEFAE0] focus:outline-none"
+                        className="flex-1 h-full bg-blue-400/10 hover:bg-blue-400/30 transition-colors duration-150 flex items-center justify-center text-[10px] font-black text-white focus:outline-none"
                         title="Play Left"
                       >
                         L
                       </button>
                     )}
-                    {(isLeftPlayable && isRightPlayable) && <div className="w-[1px] h-full bg-[#D4A373]/40" />}
+                    {(isLeftPlayable && isRightPlayable) && <div className="w-[1px] h-full bg-blue-300/40" />}
                     {isRightPlayable && (
                       <button
                         type="button"
                         onClick={() => onPlaceTile('RIGHT')}
-                        className="flex-1 h-full bg-[#D4A373]/5 hover:bg-[#D4A373]/20 transition-colors duration-150 flex items-center justify-center text-[10px] font-black text-[#FEFAE0] focus:outline-none"
+                        className="flex-1 h-full bg-blue-400/10 hover:bg-blue-400/30 transition-colors duration-150 flex items-center justify-center text-[10px] font-black text-white focus:outline-none"
                         title="Play Right"
                       >
                         R
@@ -161,18 +161,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-[340px] sm:min-h-[380px] bg-[radial-gradient(circle_at_center,_#3D322A_0%,_#2D241E_100%)] rounded-3xl border border-[#3D322A] shadow-2xl p-3 sm:p-6 flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full min-h-[340px] sm:min-h-[380px] p-3 sm:p-6 flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Table Felt Background Pattern */}
-      <div className="absolute inset-3 sm:inset-4 border border-dashed border-[#D4A373]/20 rounded-[24px] sm:rounded-[28px] pointer-events-none" />
 
       {/* Empty Board State */}
       {board.chain.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-[#A98467] space-y-3 z-10 py-12 sm:py-16 px-2">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1B1410] flex items-center justify-center border-2 border-[#D4A373] shadow-lg">
-            <span className="text-2xl font-serif italic text-[#D4A373]">🀁</span>
-          </div>
-          <p className="text-xs sm:text-sm font-medium text-[#FEFAE0] text-center max-w-sm">
+        <div className="flex flex-col items-center justify-center text-blue-200 space-y-3 z-10 py-12 sm:py-16 px-2">
+          <p className="text-xs sm:text-sm font-medium text-white text-center max-w-sm">
             The Mostaganem café table is clear. Select a tile from your hand to open the round!
           </p>
           {selectedTileId && (
@@ -182,7 +177,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
               onClick={() => onPlaceTile('LEFT')}
-              className="px-5 py-2 sm:px-6 sm:py-2.5 bg-[#D4A373] hover:bg-[#A98467] text-[#1B1410] font-black text-xs uppercase tracking-wider rounded-xl shadow-xl transition-all cursor-pointer border-2 border-[#FEFAE0]"
+              className="px-5 py-2 sm:px-6 sm:py-2.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xl transition-all cursor-pointer border-2 border-blue-300"
             >
               Place Selected Tile on Table
             </motion.button>

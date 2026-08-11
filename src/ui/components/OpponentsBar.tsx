@@ -64,7 +64,7 @@ export const OpponentsBar: React.FC<OpponentsBarProps> = ({
             <div className="flex flex-col items-end">
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(player.hand.length, 7) }).map((_, i) => (
-                  <div key={i} className="w-2.5 h-4 bg-[#1B1410] rounded-[2px] border border-[#3D322A]" />
+                  <div key={i} className="w-2.5 h-4 bg-white rounded-[2px] border border-slate-300" />
                 ))}
               </div>
               <span className="text-[11px] font-bold text-[#D4A373] mt-1">

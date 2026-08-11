@@ -46,20 +46,20 @@ export const RoundResultModal: React.FC<RoundResultModalProps> = ({
     : null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#1B1410]/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#1B1410] border-2 border-[#D4A373] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate-900 border-2 border-blue-400/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-serif italic font-black text-[#D4A373] tracking-wide">
+          <h2 className="text-2xl font-serif italic font-black text-white tracking-wide">
             {title}
           </h2>
           {isMatchEnded ? (
-            <p className="text-base font-bold text-[#CCD5AE]">
+            <p className="text-base font-bold text-blue-300">
               {matchScores.matchWinnerTeamId !== null
                 ? `Team ${matchScores.matchWinnerTeamId + 1} won the match with ${matchScores.teamScores[matchScores.matchWinnerTeamId]} points!`
                 : `${winnerName} won the match!`}
             </p>
           ) : (
-            <p className="text-sm font-semibold text-[#FEFAE0]">
+            <p className="text-sm font-semibold text-slate-200">
               {isEgalite
                 ? 'All players had equal pips in blocked game. 0 points awarded.'
                 : `${winnerName || 'Winner'} scored +${latestResult?.pointsAwarded} points!`}
@@ -68,8 +68,8 @@ export const RoundResultModal: React.FC<RoundResultModalProps> = ({
         </div>
 
         {/* Hand Pips Breakdown */}
-        <div className="bg-[#2D241E] rounded-2xl p-4 border border-[#3D322A] space-y-3">
-          <h4 className="text-xs font-black uppercase tracking-wider text-[#A98467]">
+        <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700 space-y-3">
+          <h4 className="text-xs font-black uppercase tracking-wider text-blue-300">
             Remaining Pips at End of Round
           </h4>
           <div className="space-y-2">
@@ -81,13 +81,13 @@ export const RoundResultModal: React.FC<RoundResultModalProps> = ({
                 <div
                   key={player.id}
                   className={`flex items-center justify-between p-2.5 rounded-xl text-sm ${
-                    isWinner ? 'bg-[#D4A373]/20 text-[#FEFAE0] font-bold border border-[#D4A373]/40' : 'text-[#A98467] bg-[#1B1410]/50'
+                    isWinner ? 'bg-white text-blue-950 font-bold border-2 border-blue-400 shadow-md' : 'text-slate-300 bg-slate-900/60'
                   }`}
                 >
                   <span className="flex items-center gap-2">
                     {isWinner ? '👑' : '🀁'} {player.name}
                   </span>
-                  <span className="font-mono text-xs px-2 py-1 bg-[#1B1410] rounded font-black text-[#D4A373] border border-[#3D322A]">
+                  <span className={`font-mono text-xs px-2 py-1 rounded font-black border ${isWinner ? 'bg-blue-100 text-blue-950 border-blue-300' : 'bg-slate-800 text-blue-300 border-slate-700'}`}>
                     {pips} pips
                   </span>
                 </div>
@@ -96,13 +96,13 @@ export const RoundResultModal: React.FC<RoundResultModalProps> = ({
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* Buttons - WHITE TRIGGER */}
         <div className="flex gap-3">
           {isMatchEnded ? (
             <button
               type="button"
               onClick={onRestartMatch}
-              className="w-full py-3.5 bg-[#D4A373] hover:bg-[#A98467] text-[#1B1410] font-black rounded-xl shadow-lg transition-all text-base uppercase tracking-wider cursor-pointer"
+              className="w-full py-3.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold rounded-2xl shadow-lg border-2 border-blue-300 transition-all text-base uppercase tracking-wider cursor-pointer"
             >
               Start New Match
             </button>
@@ -110,7 +110,7 @@ export const RoundResultModal: React.FC<RoundResultModalProps> = ({
             <button
               type="button"
               onClick={onNextRound}
-              className="w-full py-3.5 bg-[#D4A373] hover:bg-[#A98467] text-[#1B1410] font-black rounded-xl shadow-lg transition-all text-base uppercase tracking-wider cursor-pointer"
+              className="w-full py-3.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold rounded-2xl shadow-lg border-2 border-blue-300 transition-all text-base uppercase tracking-wider cursor-pointer"
             >
               Next Round →
             </button>
