@@ -112,11 +112,13 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
     // Build initial state with real players
     const aiFlags = players.map(() => false);
     const playerNames = players.map(p => p.name);
+    const playerAvatars = players.map(p => p.avatar);
     
     engine.dispatch({
       type: 'START_MATCH',
       config,
       playerNames,
+      playerAvatars,
       aiFlags
     });
 

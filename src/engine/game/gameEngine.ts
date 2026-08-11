@@ -82,7 +82,7 @@ export class GameEngine {
   public dispatch(action: GameAction): void {
     switch (action.type) {
       case 'START_MATCH':
-        this.handleStartMatch(action.config, action.playerNames, action.aiFlags);
+        this.handleStartMatch(action.config, action.playerNames, action.playerAvatars, action.aiFlags);
         break;
 
       case 'START_NEW_ROUND':
@@ -119,17 +119,19 @@ export class GameEngine {
     }
   }
 
-  private handleStartMatch(config: GameConfig, playerNames?: string[], aiFlags?: boolean[]): void {
+  private handleStartMatch(config: GameConfig, playerNames?: string[], playerAvatars?: string[], aiFlags?: boolean[]): void {
     const playerCount = config.mode === '2v2' || config.mode === '4player_ffa' ? 4 : config.mode === '3player_ffa' ? 3 : 2;
     const is2v2 = config.mode === '2v2';
-
+ 
     const defaultNames = ['Player 1 (You)', 'Café Master 1', 'Café Partner', 'Café Master 2'];
+    const defaultAvatars = ['🇩🇿', '🤖', '🤖', '🤖'];
     const players: Player[] = [];
-
+ 
     for (let i = 0; i < playerCount; i++) {
       const name = playerNames?.[i] || defaultNames[i] || `Player ${i + 1}`;
+      const avatar = playerAvatars?.[i] || defaultAvatars[i] || '👤';
       const isAI = aiFlags?.[i] !== undefined ? aiFlags[i] : i > 0;
-      players.push(createPlayer(`p${i + 1}`, name, isAI, is2v2 ? i % 2 : i));
+      players.push(createPlayer(`p${i + 1}`, name, isAI, is2v2 ? i % 2 : i, i, 0, avatar));
     }
 
     this.snapshot = {

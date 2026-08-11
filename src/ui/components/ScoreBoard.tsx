@@ -54,7 +54,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
           <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm ${
             isActive ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-slate-900 text-blue-300 border border-slate-700'
           }`}>
-            {p.isAI ? '🤖' : (indexInPlayers === 0 ? userAvatar : '👤')}
+            {p.avatar || (p.isAI ? '🤖' : (indexInPlayers === 0 ? userAvatar : '👤'))}
           </div>
         </div>
 

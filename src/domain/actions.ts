@@ -20,6 +20,7 @@ export interface StartMatchAction {
   type: 'START_MATCH';
   config: GameConfig;
   playerNames?: string[];
+  playerAvatars?: string[];
   aiFlags?: boolean[]; // [false, true, true, true] etc.
 }
 

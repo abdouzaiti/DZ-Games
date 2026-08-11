@@ -13,6 +13,7 @@ export interface Player {
   position: number; // Order in turn sequence (0, 1, 2, 3)
   score: number; // Individual player cumulative score
   hand: Tile[];
+  avatar?: string;
 }
 
 export function createPlayer(
@@ -21,7 +22,8 @@ export function createPlayer(
   isAI: boolean = false,
   teamId: number = 0,
   position: number = 0,
-  score: number = 0
+  score: number = 0,
+  avatar?: string
 ): Player {
   return {
     id,
@@ -31,6 +33,7 @@ export function createPlayer(
     position,
     score,
     hand: [],
+    avatar,
   };
 }
 
