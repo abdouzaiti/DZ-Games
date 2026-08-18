@@ -8,6 +8,7 @@ import { GameEngine } from '../../engine/game/gameEngine';
 import { getDefaultConfig } from '../../domain/gameConfig';
 import { Language, getTranslation } from '../translations';
 import { UserProfile } from './ProfileModal';
+import { Avatar } from './Avatar';
 import { AppSettings } from './SettingsModal';
 import { GameBoard } from './GameBoard';
 import { ScoreBoard } from './ScoreBoard';
@@ -228,7 +229,9 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
                      p.id === myPlayerId ? 'bg-blue-600/20 border-blue-500' : 'bg-slate-900 border-slate-700'
                    }`}
                  >
-                   <div className="text-2xl">{p.avatar}</div>
+                   <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-2xl bg-slate-800 border-2 border-slate-700">
+                     <Avatar avatar={p.avatar} />
+                   </div>
                    <div className="text-[10px] font-black text-white truncate max-w-[80px]">{p.name}</div>
                    {p.is_ready ? (
                      <CheckCircle2 className="w-4 h-4 text-green-400" />

@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Language, getTranslation } from '../translations';
 import { authService, UserAccount } from '../../services/authService';
+import { Avatar } from './Avatar';
 
 export interface UserProfile {
   id?: string;
@@ -50,9 +51,51 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   if (!isOpen) return null;
 
   const t = getTranslation(language);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const processFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner un fichier image valide.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result && typeof event.target.result === 'string') {
+        setSelectedAvatar(event.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +140,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-2xl shadow-sm">
-              {selectedAvatar}
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center overflow-hidden text-2xl shadow-sm">
+              <Avatar avatar={selectedAvatar} className="w-full h-full flex items-center justify-center text-2xl" />
             </div>
             <div>
               <h2 className="font-serif italic font-extrabold text-xl text-white">
@@ -136,28 +179,63 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
 
             {/* Profile Picture / Avatar Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
-                {t.chooseAvatar}
-              </label>
-              <div className="grid grid-cols-5 gap-2.5">
-                {AVATAR_OPTIONS.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setSelectedAvatar(item.icon)}
-                    className={`p-3 rounded-2xl border flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                      selectedAvatar === item.icon
-                        ? 'bg-white text-blue-950 border-2 border-blue-400 ring-2 ring-blue-300/50 scale-105 shadow-md'
-                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-blue-400/50'
-                    }`}
-                  >
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-[10px] text-blue-300 font-semibold truncate max-w-full">
-                      {item.label}
-                    </span>
-                  </button>
-                ))}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
+                  {t.chooseAvatar}
+                </label>
+                
+                {/* Custom Image Upload Dropzone */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
+                    isDragging 
+                      ? 'border-blue-400 bg-blue-500/10 scale-[1.01]' 
+                      : 'border-slate-700 bg-slate-800/40 hover:border-blue-400/50 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <span className="text-2xl">📸</span>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-white">Importer votre propre photo</p>
+                    <p className="text-[10px] text-slate-400 font-medium">Glissez-déposez ou cliquez pour parcourir</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Emoji/Character Presets */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 block">
+                  Ou choisir un avatar classique
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {AVATAR_OPTIONS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedAvatar(item.icon)}
+                      className={`p-2 rounded-xl border flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
+                        selectedAvatar === item.icon
+                          ? 'bg-white text-blue-950 border-2 border-blue-400 ring-2 ring-blue-300/50 scale-105 shadow-md'
+                          : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-blue-400/50'
+                      }`}
+                    >
+                      <span className="text-xl">{item.icon}</span>
+                      <span className="text-[9px] text-blue-300 font-semibold truncate max-w-full">
+                        {item.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

@@ -13,6 +13,7 @@ import { ProfileModal, UserProfile } from './ProfileModal';
 import { OnlinePlayModal } from './OnlinePlayModal';
 import { MatchSetupModal } from './MatchSetupModal';
 import { audioController } from '../utils/audio';
+import { Avatar } from './Avatar';
 
 interface MainLobbyProps {
   currentConfig: GameConfig;
@@ -183,8 +184,8 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
         >
           {/* Avatar Picture */}
           <div className="relative">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 border-2 border-blue-300 flex items-center justify-center text-xl sm:text-2xl shadow-sm">
-              {profile.avatar}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 border-2 border-blue-300 flex items-center justify-center overflow-hidden text-xl sm:text-2xl shadow-sm">
+              <Avatar avatar={profile.avatar} className="w-full h-full flex items-center justify-center" />
             </div>
             <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-blue-600 rounded-full border-2 border-white flex items-center justify-center text-[7px] sm:text-[8px] font-black text-white">
               ✏️

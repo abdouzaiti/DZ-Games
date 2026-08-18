@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { GameSnapshot } from '../../domain/gameState';
+import { Avatar } from './Avatar';
 import leatherPouchImg from '../../assets/images/leather_domino_pouch_1786418367291.jpg';
 
 interface ScoreBoardProps {
@@ -51,10 +52,10 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
       >
         {/* Player Avatar */}
         <div className="relative shrink-0">
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm ${
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center overflow-hidden font-bold text-sm ${
             isActive ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-slate-900 text-blue-300 border border-slate-700'
           }`}>
-            {p.avatar || (p.isAI ? '🤖' : (indexInPlayers === 0 ? userAvatar : '👤'))}
+            <Avatar avatar={p.avatar || (p.isAI ? '🤖' : (indexInPlayers === 0 ? userAvatar : '👤'))} className="w-full h-full flex items-center justify-center" />
           </div>
         </div>
 
@@ -91,10 +92,10 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
           <button
             type="button"
             onClick={onOpenProfile}
-            className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs flex items-center justify-center cursor-pointer transition-colors"
+            className="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center overflow-hidden cursor-pointer transition-colors"
             title="Profile"
           >
-            {userAvatar}
+            <Avatar avatar={userAvatar} className="w-5 h-5 flex items-center justify-center text-[10px]" />
           </button>
           <button
             type="button"
