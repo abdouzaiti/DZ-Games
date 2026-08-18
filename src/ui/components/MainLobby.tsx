@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Settings } from 'lucide-react';
+import { Settings, LogOut } from 'lucide-react';
 import { GameConfig } from '../../domain/gameConfig';
 import { Language, getTranslation } from '../translations';
 import { AppSettings, SettingsModal } from './SettingsModal';
@@ -22,6 +22,7 @@ interface MainLobbyProps {
   onUpdateProfile: (newProfile: UserProfile) => void;
   onStartOfflineMatch: (config: GameConfig) => void;
   onJoinMatch: (matchId: string, playerId: string) => void;
+  onLogout: () => void;
 }
 
 export const MainLobby: React.FC<MainLobbyProps> = ({
@@ -32,6 +33,7 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
   onUpdateProfile,
   onStartOfflineMatch,
   onJoinMatch,
+  onLogout,
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
@@ -84,15 +86,28 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
           />
         </div>
 
-        {/* Top Right SETTINGS Icon Trigger */}
-        <button
-          type="button"
-          onClick={handleOpenSettings}
-          className="p-2 sm:p-3 rounded-2xl text-white hover:text-blue-300 hover:bg-white/10 active:scale-95 transition-all cursor-pointer group flex items-center justify-center"
-          title={t.settingsTitle}
-        >
-          <Settings className="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:rotate-45" />
-        </button>
+        {/* Top Right Actions */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={onLogout}
+            className="p-2 sm:p-3 rounded-2xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+            title="Se déconnecter"
+          >
+            <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+
+          {/* Settings Icon Trigger */}
+          <button
+            type="button"
+            onClick={handleOpenSettings}
+            className="p-2 sm:p-3 rounded-2xl text-white hover:text-blue-300 hover:bg-white/10 active:scale-95 transition-all cursor-pointer group flex items-center justify-center"
+            title={t.settingsTitle}
+          >
+            <Settings className="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:rotate-45" />
+          </button>
+        </div>
       </header>
 
       {/* CENTER GAMEPLAY TRIGGERS - WHITE CARDS */}

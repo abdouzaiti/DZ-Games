@@ -29,11 +29,17 @@ import { MultiplayerRoom } from './ui/components/MultiplayerRoom';
 import { getTranslation } from './ui/translations';
 import { audioController } from './ui/utils/audio';
 
+import { AuthScreen } from './ui/components/AuthScreen';
+import { UserAccount } from './services/authService';
+
 export default function App() {
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [account, setAccount] = useState<UserAccount | null>(null);
+
   // Singleton instance of pure GameEngine
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 
-  const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'lobby' | 'game' | 'multiplayer'>('lobby');
   const [matchId, setMatchId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
@@ -66,6 +72,24 @@ export default function App() {
       avatar: '🇩🇿',
     };
   });
+
+  const handleAuthenticated = (acc: UserAccount) => {
+    setAccount(acc);
+    setProfile({
+      id: acc.id,
+      name: acc.username,
+      avatar: acc.avatar,
+      hasPassword: acc.has_password,
+    });
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('mgc_user');
+    setIsAuthenticated(false);
+    setAccount(null);
+    setActiveView('lobby');
+  };
 
   const [snapshot, setSnapshot] = useState<GameSnapshot>(engine.getSnapshot());
   const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
@@ -276,9 +300,9 @@ export default function App() {
     setActiveView('multiplayer');
   };
 
-  // STEP 1: Intro Screen
-  if (!hasEntered) {
-    return <IntroScreen onEnter={() => setHasEntered(true)} />;
+  // STEP 1: Authentication
+  if (!isAuthenticated) {
+    return <AuthScreen onAuthenticated={handleAuthenticated} />;
   }
 
   // STEP 2: Main Lobby
@@ -292,6 +316,7 @@ export default function App() {
         onUpdateProfile={handleUpdateProfile}
         onStartOfflineMatch={handleStartMatch}
         onJoinMatch={handleJoinMatch}
+        onLogout={handleLogout}
       />
     );
   }
@@ -433,6 +458,7 @@ export default function App() {
         profile={profile}
         language={settings.language}
         onSaveProfile={handleUpdateProfile}
+        onLogout={handleLogout}
         onClose={() => setIsProfileOpenInGame(false)}
       />
 

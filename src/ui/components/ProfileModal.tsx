@@ -5,10 +5,13 @@
 
 import React, { useState } from 'react';
 import { Language, getTranslation } from '../translations';
+import { authService, UserAccount } from '../../services/authService';
 
 export interface UserProfile {
+  id?: string;
   name: string;
-  avatar: string; // Emoji avatar icon or picture
+  avatar: string;
+  hasPassword?: boolean;
 }
 
 export const AVATAR_OPTIONS = [
@@ -29,6 +32,7 @@ interface ProfileModalProps {
   profile: UserProfile;
   language: Language;
   onSaveProfile: (newProfile: UserProfile) => void;
+  onLogout?: () => void;
   onClose: () => void;
 }
 
@@ -37,10 +41,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   profile,
   language,
   onSaveProfile,
+  onLogout,
   onClose,
 }) => {
   const [name, setName] = useState<string>(profile.name);
   const [selectedAvatar, setSelectedAvatar] = useState<string>(profile.avatar);
+  const [newPassword, setNewPassword] = useState('');
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   if (!isOpen) return null;
 
@@ -49,16 +57,43 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = name.trim() || 'Joueur 1';
+    
+    // If username changed and we have a backend ID, we should ideally update it in backend too
+    if (profile.id && finalName !== profile.name) {
+      authService.updateUsername(profile.id, finalName).catch(console.error);
+    }
+    if (profile.id && selectedAvatar !== profile.avatar) {
+      authService.updateAvatar(profile.id, selectedAvatar).catch(console.error);
+    }
+
     onSaveProfile({
+      ...profile,
       name: finalName,
       avatar: selectedAvatar,
     });
     onClose();
   };
 
+  const handleUpdatePassword = async () => {
+    if (!profile.id || !newPassword.trim()) return;
+    setUpdatingPassword(true);
+    setPasswordStatus('idle');
+    try {
+      await authService.updatePassword(profile.id, newPassword);
+      setPasswordStatus('success');
+      setNewPassword('');
+      // Update local profile state to reflect it now has a password
+      onSaveProfile({ ...profile, hasPassword: true });
+    } catch (err) {
+      setPasswordStatus('error');
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border-2 border-blue-400/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative">
+      <div className="bg-slate-900 border-2 border-blue-400/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
@@ -70,7 +105,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 {t.profileTitle}
               </h2>
               <p className="text-xs text-blue-300">
-                Personnalisez votre identité de jeu
+                Compte: <span className="text-white font-bold">{profile.name}</span>
               </p>
             </div>
           </div>
@@ -83,57 +118,99 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Player Name Input */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
-              {t.playerName}
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Amine, Karim..."
-              maxLength={20}
-              className="w-full bg-slate-800 border-2 border-slate-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-2xl px-4 py-3 text-white font-bold text-base outline-none transition-all"
-            />
-          </div>
-
-          {/* Profile Picture / Avatar Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
-              {t.chooseAvatar}
-            </label>
-            <div className="grid grid-cols-5 gap-2.5">
-              {AVATAR_OPTIONS.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setSelectedAvatar(item.icon)}
-                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                    selectedAvatar === item.icon
-                      ? 'bg-white text-blue-950 border-2 border-blue-400 ring-2 ring-blue-300/50 scale-105 shadow-md'
-                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-blue-400/50'
-                  }`}
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="text-[10px] text-blue-300 font-semibold truncate max-w-full">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
+        <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Player Name Input */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
+                {t.playerName}
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Amine, Karim..."
+                maxLength={20}
+                className="w-full bg-slate-800 border-2 border-slate-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-2xl px-4 py-3 text-white font-bold text-base outline-none transition-all"
+              />
             </div>
-          </div>
 
-          {/* Save Button - WHITE TRIGGER */}
-          <button
-            type="submit"
-            className="w-full py-3.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-lg border-2 border-blue-300 transition-all cursor-pointer"
-          >
-            {t.save}
-          </button>
-        </form>
+            {/* Profile Picture / Avatar Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
+                {t.chooseAvatar}
+              </label>
+              <div className="grid grid-cols-5 gap-2.5">
+                {AVATAR_OPTIONS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedAvatar(item.icon)}
+                    className={`p-3 rounded-2xl border flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                      selectedAvatar === item.icon
+                        ? 'bg-white text-blue-950 border-2 border-blue-400 ring-2 ring-blue-300/50 scale-105 shadow-md'
+                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-blue-400/50'
+                    }`}
+                  >
+                    <span className="text-2xl">{item.icon}</span>
+                    <span className="text-[10px] text-blue-300 font-semibold truncate max-w-full">
+                      {item.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-lg border-2 border-blue-300 transition-all cursor-pointer"
+            >
+              {t.save}
+            </button>
+          </form>
+
+          {/* Security Section */}
+          <div className="pt-6 border-t border-slate-800 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500">Sécurité du compte</h3>
+            
+            <div className="space-y-3 bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+              <label className="text-xs font-bold text-blue-300 block">
+                {profile.hasPassword ? 'Changer le mot de passe' : 'Protéger par un mot de passe'}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Nouveau mot de passe"
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleUpdatePassword}
+                  disabled={updatingPassword || !newPassword.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-all cursor-pointer"
+                >
+                  {updatingPassword ? '...' : 'Valider'}
+                </button>
+              </div>
+              {passwordStatus === 'success' && <p className="text-[10px] text-green-400 font-bold">✓ Mot de passe mis à jour !</p>}
+              {passwordStatus === 'error' && <p className="text-[10px] text-red-400 font-bold">✕ Échec de la mise à jour.</p>}
+            </div>
+
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="w-full py-3 text-red-400 hover:bg-red-500/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
+              >
+                Se déconnecter
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
