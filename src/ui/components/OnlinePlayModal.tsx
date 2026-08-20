@@ -18,6 +18,37 @@ interface OnlinePlayModalProps {
   onJoinMatch: (matchId: string, playerId: string) => void;
 }
 
+const ONLINE_LOCAL_TRANSLATIONS: Record<string, any> = {
+  dz: {
+    v2Online: 'أونلاين V2',
+    serverConnected: 'السيرفر راه مكونكتي',
+    checking: 'رانا نفيريفيو...',
+    supabaseWarning: 'لازم تكونكتي السيرفر فالسيتينغ قبل ما تلعب.',
+    or: 'ولا'
+  },
+  ar: {
+    v2Online: 'أونلاين V2',
+    serverConnected: 'الخادم متصل',
+    checking: 'جاري التحقق...',
+    supabaseWarning: 'يرجى تهيئة مفاتيح الاتصال بالخادم في الإعدادات أولاً.',
+    or: 'أو'
+  },
+  fr: {
+    v2Online: 'En Ligne V2',
+    serverConnected: 'Serveur Connecté',
+    checking: 'Vérification...',
+    supabaseWarning: 'Veuillez configurer vos clés de serveur dans les paramètres.',
+    or: 'OU'
+  },
+  en: {
+    v2Online: 'V2 Online',
+    serverConnected: 'Server Connected',
+    checking: 'Checking...',
+    supabaseWarning: 'Please configure your server keys in settings first.',
+    or: 'OR'
+  }
+};
+
 export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
   isOpen,
   language,
@@ -33,6 +64,7 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
   if (!isOpen) return null;
 
   const t = getTranslation(language);
+  const ot = ONLINE_LOCAL_TRANSLATIONS[language] || ONLINE_LOCAL_TRANSLATIONS.fr;
 
   const generateUserId = () => {
     let id = localStorage.getItem('mostaganem_user_id');
@@ -79,7 +111,7 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
         <div className="mx-auto w-20 h-20 rounded-3xl bg-blue-50 border-2 border-blue-300 flex items-center justify-center text-4xl shadow-xl shadow-blue-500/10 relative">
           🌐
           <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-blue-600 text-white text-[10px] font-black rounded-md uppercase">
-            V2 Online
+            {ot.v2Online}
           </span>
         </div>
 
@@ -91,11 +123,11 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
           <div className="flex items-center justify-center gap-2">
             <div className={`w-2 h-2 rounded-full ${supabase ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              {supabase ? 'Serveur Connecté' : 'Vérification...'}
+              {supabase ? ot.serverConnected : ot.checking}
             </p>
           </div>
           <p className="text-xs text-blue-200 leading-relaxed max-w-sm mx-auto">
-            {supabase ? t.onlineDesc : 'Veuillez configurer vos clés Supabase dans les paramètres.'}
+            {supabase ? t.onlineDesc : ot.supabaseWarning}
           </p>
         </div>
 
@@ -120,7 +152,7 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
 
           <div className="relative flex items-center py-2">
             <div className="flex-grow border-t border-slate-700"></div>
-            <span className="flex-shrink mx-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">OU</span>
+            <span className="flex-shrink mx-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{ot.or}</span>
             <div className="flex-grow border-t border-slate-700"></div>
           </div>
 

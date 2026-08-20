@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type Language = 'ar' | 'fr' | 'en';
+export type Language = 'ar' | 'fr' | 'en' | 'dz';
 
 export interface Translations {
   title: string;
@@ -112,7 +112,7 @@ export const translations: Record<Language, Translations> = {
   ar: {
     title: 'دومينو مستغانم',
     subTitle: 'لعبة الدومينو الجزائرية الأصيلة 🇩🇿',
-    playOnline: 'اللعب عبر الإنترنت',
+    playOnline: 'ألعب مع صحابك',
     playOnlineSub: 'غرف جماعية وتحديات مباشرة',
     playOffline: 'بدون إنترنت ضد الذكاء الاصطناعي',
     playOfflineSub: 'مباراة سريعة ضد الذكاء الاصطناعي',
@@ -210,6 +210,57 @@ export const translations: Record<Language, Translations> = {
     shuffleAction: 'Shuffle Tiles',
     shuffleProgress: 'Shuffling...',
     dealAction: 'Deal Tiles',
+  },
+  dz: {
+    title: 'دومينو مستغانم',
+    subTitle: 'دومينو القهوة الجزائري البنين 🇩🇿',
+    playOnline: 'ألعب مع صحابك',
+    playOnlineSub: 'الشنابر ولعب كونترا لايف',
+    playOffline: 'أوفلاين كونتر لافيش',
+    playOfflineSub: 'بارتيا خفيفة ضد الروبو',
+    onlineTitle: 'ألعب أونلاين - جماعي',
+    onlineDesc: 'قصر مع صحابك ولا كاش غاشي فالعالم فـ V2.',
+    comingSoon: 'راه واجد فـ V2',
+    close: 'بلع',
+    createRoom: 'حل شومبرة',
+    joinRoom: 'أدخل لشومبرة',
+    enterRoomCode: 'أكتب الكود تاع الشومبرة',
+    invalidRoomCode: 'الكود فو ولا الشومبرة راهي معمرة',
+    waitingForPlayers: 'رانا نستاناو فالغاشي...',
+    ready: 'واجد',
+    startGame: 'أبدا البارتيا',
+    playersConnected: 'راهم مكونكتيين',
+    settingsTitle: 'ريغلاج تاع اللعبة',
+    music: 'الموزيقا',
+    soundEffects: 'أصوات اللعبة',
+    vibration: 'الفيبراسور',
+    language: 'اللوغة',
+    on: 'شاعل',
+    off: 'طافي',
+    profileTitle: 'البروفيل تاعك',
+    playerName: 'إسم الجوور',
+    chooseAvatar: 'خير التصويرة تاعك',
+    save: 'أنريجيستري',
+    menu: 'المينو الكبير',
+    newMatch: 'بارتيا جديدة',
+    matchSettings: 'ريغلاج تاع البارتيا',
+    startMatch: 'ديماري البارتيا',
+    selectMode: 'خير كفاش تلعب',
+    targetPoints: 'لانطير تاع البارتيا',
+    enterCafe: 'أدخل للقهوة والعب',
+    rulesOpener: 'الستة ستة هي اللولى',
+    rulesOpenerDesc: 'البارتيا اللولى لازم تبدا بالدوبل سيس [6|6] زكارة.',
+    rulesSnake: 'الطاولة المعوجة',
+    rulesSnakeDesc: 'الستيكاج تاع الدومينو يدور اوتوماتيك فالشاشة.',
+    rulesScoring: 'الخرجة والغلاق',
+    rulesScoringDesc: 'تربح كي تكمل قاع حباتك ولا تبلع الطاولة ويكون عندك اقل نقاط.',
+    quickStats: 'ستاتيسيك تاعك',
+    matchesPlayed: 'البارتيات لي لعبتهم',
+    matchesWon: 'البارتيات لي ربحتهم',
+    shuffleTitle: 'خلط الدومينو',
+    shuffleAction: 'خلط الدومينو',
+    shuffleProgress: 'رانا نخلطو فالشابة...',
+    dealAction: 'وزع الحبات',
   },
 };
 

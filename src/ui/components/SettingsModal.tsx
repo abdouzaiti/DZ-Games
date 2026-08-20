@@ -159,8 +159,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <label className="text-xs font-bold uppercase tracking-wider text-blue-300 block">
               {t.language} / Language
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
+                { id: 'dz', label: 'الدارجة 🇩🇿' },
                 { id: 'ar', label: 'العربية 🇩🇿' },
                 { id: 'fr', label: 'Français 🇫🇷' },
                 { id: 'en', label: 'English 🇬🇧' },
@@ -169,7 +170,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   key={lang.id}
                   type="button"
                   onClick={() => handleLanguageChange(lang.id as Language)}
-                  className={`py-3 px-2 rounded-2xl text-xs font-extrabold border transition-all cursor-pointer ${
+                  className={`py-3 px-1 rounded-2xl text-[11px] font-extrabold border transition-all cursor-pointer truncate ${
                     settings.language === lang.id
                       ? 'bg-white text-blue-950 border-2 border-blue-400 shadow-md ring-2 ring-blue-300/50'
                       : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-blue-400/50'

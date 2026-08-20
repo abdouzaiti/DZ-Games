@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, User, CheckCircle2, Play, ArrowLeft, Loader2 } from 'lucide-react';
+import { Copy, User, CheckCircle2, Play, ArrowLeft, Loader2, Trophy, Sparkles, Crown, RotateCcw } from 'lucide-react';
 import { multiplayerService, MatchRoom, PlayerSession } from '../../services/multiplayerService';
 import { GameSnapshot } from '../../domain/gameState';
 import { GameAction } from '../../domain/actions';
@@ -15,6 +15,7 @@ import { ScoreBoard } from './ScoreBoard';
 import { PlayerRack } from './PlayerRack';
 import { GameStock } from './GameStock';
 import { TileShuffler } from './TileShuffler';
+import { RoundResultModal } from './RoundResultModal';
 import { audioController } from '../utils/audio';
 import { TurnManager } from '../../engine/turn/turnManager';
 import { Tile } from '../../domain/tile';
@@ -147,6 +148,13 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
       (engine as any).notifyListeners();
     }
   }, [snapshot, engine]);
+
+  // Reset selected tile when starting a new round or match
+  useEffect(() => {
+    if (snapshot?.roundStatus === 'NOT_STARTED') {
+      setSelectedTile(null);
+    }
+  }, [snapshot?.roundNumber, snapshot?.roundStatus]);
 
   if (error) {
     return (
@@ -396,6 +404,186 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
           </div>
         )}
       </main>
+
+      {/* ROUND ENDED MODAL */}
+      {(snapshot.roundStatus === 'ROUND_ENDED_SORTIE' || snapshot.roundStatus === 'ROUND_ENDED_GHALLAQ') && (
+        <RoundResultModal
+          snapshot={snapshot}
+          onNextRound={() => {
+            handleAction({ type: 'START_NEW_ROUND' });
+            setIsShuffling(true);
+          }}
+          onRestartMatch={() => {
+            handleAction({ type: 'RESTART_MATCH' });
+            setIsShuffling(true);
+          }}
+          isMultiplayer={true}
+          isHost={isHost}
+          language={settings.language}
+        />
+      )}
+
+      {/* MATCH ENDED CELEBRATION OVERLAY */}
+      <AnimatePresence>
+        {snapshot.roundStatus === 'MATCH_ENDED' && (
+          <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden select-none">
+            {/* Floating Celebration Confetti Emojis */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {Array.from({ length: 30 }).map((_, i) => {
+                const celebratoryEmojis = ['🎉', '👑', '🇩🇿', '🀁', '🔥', '🏆', '✨', '👏'];
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{
+                      opacity: 0,
+                      y: '110dvh',
+                      x: `${Math.random() * 100}vw`,
+                      scale: 0.4 + Math.random() * 0.8,
+                      rotate: 0,
+                    }}
+                    animate={{
+                      opacity: [0, 1, 1, 0],
+                      y: '-10dvh',
+                      rotate: [0, 180, 360 * (Math.random() > 0.5 ? 1 : -1)],
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 5,
+                      repeat: Infinity,
+                      delay: Math.random() * 4,
+                      ease: 'linear',
+                    }}
+                    className="absolute text-2xl filter drop-shadow-md"
+                  >
+                    {celebratoryEmojis[i % celebratoryEmojis.length]}
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Main Dialog Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-md bg-slate-900 border-2 border-blue-400/40 rounded-[24px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(30,58,138,0.3)] flex flex-col gap-6 text-center"
+            >
+              <div className="space-y-2">
+                <div className="w-16 h-16 bg-blue-500/10 border-2 border-blue-400/30 rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                  <Trophy className="w-8 h-8 text-yellow-400 animate-bounce" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-serif italic font-extrabold text-white tracking-wide mt-2">
+                  {settings.language === 'dz' ? '🎉 خلاصت البارتيا بالصحة! 🎉' : settings.language === 'ar' ? '🎉 انتهت المباراة! 🎉' : settings.language === 'fr' ? '🎉 MATCH TERMINÉ ! 🎉' : '🎉 MATCH FINISHED! 🎉'}
+                </h2>
+                <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">
+                  Mostaganem Game Club
+                </p>
+              </div>
+
+              {/* Leaderboard */}
+              <div className="bg-slate-800/40 rounded-2xl p-4 border border-slate-700/60 space-y-3">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-300 text-left">
+                  {settings.language === 'dz' ? 'النتائج اللخرة' : settings.language === 'ar' ? 'النتائج النهائية' : settings.language === 'fr' ? 'Résultats Finaux' : 'Final Standings'}
+                </h4>
+                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                  {[...snapshot.players]
+                    .sort((a, b) => {
+                      const scoreA = snapshot.matchScores.playerScores[a.id] ?? 0;
+                      const scoreB = snapshot.matchScores.playerScores[b.id] ?? 0;
+                      return scoreB - scoreA;
+                    })
+                    .map((player, idx) => {
+                      const finalScore = snapshot.matchScores.playerScores[player.id] ?? 0;
+                      const isWinner = player.id === snapshot.matchScores.matchWinnerId;
+
+                      return (
+                        <div
+                          key={player.id}
+                          className={`flex items-center justify-between p-3 rounded-xl text-sm transition-all ${
+                            isWinner
+                              ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-white font-bold border-2 border-blue-400 shadow-lg'
+                              : 'text-slate-300 bg-slate-900/60 border border-slate-800'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            {isWinner ? (
+                              <Crown className="w-5 h-5 text-yellow-400 filter drop-shadow-sm shrink-0" />
+                            ) : (
+                              <span className="w-5 text-xs text-slate-500 font-bold">#{idx + 1}</span>
+                            )}
+                            <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 border border-slate-700">
+                              <Avatar avatar={player.avatar} />
+                            </div>
+                            <span className="truncate max-w-[120px]">{player.name}</span>
+                          </span>
+                          <span
+                            className={`font-mono text-xs px-2.5 py-1 rounded-md font-black border ${
+                              isWinner
+                                ? 'bg-blue-400/20 text-blue-300 border-blue-400/30'
+                                : 'bg-slate-800 text-slate-400 border-slate-700/50'
+                            }`}
+                          >
+                            {finalScore} pts
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {isHost ? (
+                  <>
+                    <button
+                      onClick={handleStartGame}
+                      className="flex-1 py-3.5 px-6 bg-white hover:bg-blue-50 text-blue-950 font-black rounded-2xl shadow-lg border-2 border-blue-200 transition-all text-sm uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <RotateCcw size={16} />
+                      {settings.language === 'dz' ? 'بارتيا جديدة' : settings.language === 'ar' ? 'لعب مباراة جديدة' : settings.language === 'fr' ? 'Revanche' : 'Rematch'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await multiplayerService.returnToLobby(matchId);
+                        } catch (e) {
+                          console.error('Failed to return to lobby', e);
+                        }
+                      }}
+                      className="flex-1 py-3.5 px-6 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-700 transition-all text-sm uppercase tracking-wider cursor-pointer"
+                    >
+                      {settings.language === 'dz' ? 'أرجع للمجلس' : settings.language === 'ar' ? 'العودة للمجلس' : settings.language === 'fr' ? 'Retour Salon' : 'Back to Lobby'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex-1 p-3.5 bg-slate-800/40 border border-slate-700/60 rounded-2xl flex flex-col items-center justify-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                        <span className="text-xs font-bold text-blue-300 uppercase tracking-wide">
+                          {settings.language === 'dz'
+                            ? 'رانا نستناو فمول الشومبرة يديماري بارتيا جديدة...'
+                            : settings.language === 'ar'
+                            ? 'في انتظار منشئ الغرفة لبدء مباراة جديدة...'
+                            : settings.language === 'fr'
+                            ? "Attente de l'hôte..."
+                            : 'Waiting for host...'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={onExit}
+                      className="py-3.5 px-6 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-700 transition-all text-sm uppercase tracking-wider cursor-pointer"
+                    >
+                      {settings.language === 'dz' ? 'أخرج' : settings.language === 'ar' ? 'الخروج' : settings.language === 'fr' ? 'Quitter' : 'Exit'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -135,6 +135,19 @@ export const multiplayerService = {
     if (error) throw error;
   },
 
+  async returnToLobby(matchId: string) {
+    this.checkEnabled();
+    const { error } = await supabase!
+      .from('matches')
+      .update({ 
+        status: 'lobby',
+        game_state: null
+      })
+      .eq('id', matchId);
+
+    if (error) throw error;
+  },
+
   async getMatch(matchId: string): Promise<MatchRoom | null> {
     this.checkEnabled();
     const { data, error } = await supabase!
