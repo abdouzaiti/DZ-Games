@@ -24,9 +24,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({ profile, settings, onSelectG
     {
       id: 'chess' as const,
       title: isAr ? 'شطرنج' : 'Chess',
-      description: isAr ? 'قيد التطوير...' : 'En développement...',
+      description: isAr ? 'العب الشطرنج ضد الذكاء الاصطناعي أو أصدقائك.' : 'Jouez aux échecs contre l\'IA ou vos amis.',
       icon: '♟️',
-      status: 'development',
+      status: 'active',
     },
     {
       id: 'ludo' as const,

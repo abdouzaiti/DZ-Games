@@ -33,6 +33,9 @@ import { audioController } from './ui/utils/audio';
 import { AuthScreen } from './ui/components/AuthScreen';
 import { UserAccount } from './services/authService';
 
+import { ChessLobby } from './ui/components/chess/ChessLobby';
+import { ChessGameUI } from './ui/components/chess/ChessGameUI';
+
 export default function App() {
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,9 +44,13 @@ export default function App() {
   // Singleton instance of pure GameEngine
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 
-  const [activeView, setActiveView] = useState<'hub' | 'lobby' | 'game' | 'multiplayer'>('hub');
+  const [activeView, setActiveView] = useState<'hub' | 'lobby' | 'game' | 'multiplayer' | 'chess_lobby' | 'chess_game'>('hub');
   const [matchId, setMatchId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+
+  // Chess specific state
+  const [chessMode, setChessMode] = useState<'hvh' | 'hva'>('hva');
+  const [chessDifficulty, setChessDifficulty] = useState<number>(3);
 
   // App Settings & User Profile State (with LocalStorage persistence)
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -314,8 +321,38 @@ export default function App() {
         settings={settings}
         onSelectGame={(gameId) => {
           if (gameId === 'domino') setActiveView('lobby');
+          if (gameId === 'chess') setActiveView('chess_lobby');
         }}
         onLogout={handleLogout}
+      />
+    );
+  }
+
+  // CHESS: Lobby
+  if (activeView === 'chess_lobby') {
+    return (
+      <ChessLobby
+        profile={profile}
+        settings={settings}
+        onStartMatch={(mode, difficulty) => {
+          setChessMode(mode);
+          if (difficulty) setChessDifficulty(difficulty);
+          setActiveView('chess_game');
+        }}
+        onBack={() => setActiveView('hub')}
+      />
+    );
+  }
+
+  // CHESS: Game
+  if (activeView === 'chess_game') {
+    return (
+      <ChessGameUI
+        profile={profile}
+        settings={settings}
+        mode={chessMode}
+        difficulty={chessDifficulty}
+        onExit={() => setActiveView('chess_lobby')}
       />
     );
   }

@@ -10,6 +10,7 @@ import { runTurnAndDrawTests } from './turnAndDraw.test';
 import { runRoundMatchLifecycleTests } from './roundMatchLifecycle.test';
 import { runDominoAITests } from './dominoAI.test';
 import { runQAStressTestSuite } from './qaStressTestSuite.test';
+import { runPhase10QATests as runChessQATests } from '../chess/tests/phase10.test';
 
 try {
   runGameEngineTests();
@@ -19,6 +20,7 @@ try {
   runRoundMatchLifecycleTests();
   runDominoAITests();
   runQAStressTestSuite();
+  runChessQATests();
   process.exit(0);
 } catch (err) {
   console.error('❌ Test failed:', err);
