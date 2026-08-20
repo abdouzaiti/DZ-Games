@@ -49,8 +49,11 @@ export default function App() {
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
   // Chess specific state
-  const [chessMode, setChessMode] = useState<'hvh' | 'hva'>('hva');
+  const [chessMode, setChessMode] = useState<'hvh' | 'hva' | 'online'>('hva');
   const [chessDifficulty, setChessDifficulty] = useState<number>(3);
+  const [chessMatchId, setChessMatchId] = useState<string | null>(null);
+  const [chessMyPlayerId, setChessMyPlayerId] = useState<string | null>(null);
+  const [chessIsHost, setChessIsHost] = useState<boolean>(false);
 
   // App Settings & User Profile State (with LocalStorage persistence)
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -334,9 +337,18 @@ export default function App() {
       <ChessLobby
         profile={profile}
         settings={settings}
-        onStartMatch={(mode, difficulty) => {
+        onStartMatch={(mode, difficulty, onlineParams) => {
           setChessMode(mode);
           if (difficulty) setChessDifficulty(difficulty);
+          if (onlineParams) {
+            setChessMatchId(onlineParams.matchId);
+            setChessMyPlayerId(onlineParams.myPlayerId);
+            setChessIsHost(onlineParams.isHost);
+          } else {
+            setChessMatchId(null);
+            setChessMyPlayerId(null);
+            setChessIsHost(false);
+          }
           setActiveView('chess_game');
         }}
         onBack={() => setActiveView('hub')}
@@ -352,6 +364,9 @@ export default function App() {
         settings={settings}
         mode={chessMode}
         difficulty={chessDifficulty}
+        matchId={chessMatchId}
+        myPlayerId={chessMyPlayerId}
+        isHost={chessIsHost}
         onExit={() => setActiveView('chess_lobby')}
       />
     );

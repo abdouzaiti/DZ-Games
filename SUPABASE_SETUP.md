@@ -19,9 +19,13 @@ CREATE TABLE IF NOT EXISTS matches (
   host_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'lobby',
   game_state JSONB,
+  game_type TEXT NOT NULL DEFAULT 'domino', -- Supports 'domino' and 'chess'
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration query if you already created the tables previously:
+-- ALTER TABLE matches ADD COLUMN IF NOT EXISTS game_type TEXT NOT NULL DEFAULT 'domino';
 
 -- 3. Create Players table to store participants in each match
 CREATE TABLE IF NOT EXISTS players (

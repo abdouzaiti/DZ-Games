@@ -1,12 +1,14 @@
 import { supabase } from '../lib/supabase';
 import { GameSnapshot } from '../domain/gameState';
+import { ChessGameState } from '../chess/state/gameState';
 
 export interface MatchRoom {
   id: string;
   code: string;
   host_id: string;
   status: 'lobby' | 'playing' | 'finished';
-  game_state: GameSnapshot | null;
+  game_state: GameSnapshot | ChessGameState | null;
+  game_type?: 'domino' | 'chess';
   created_at: string;
 }
 
@@ -27,7 +29,7 @@ export const multiplayerService = {
     }
   },
 
-  async createMatch(hostId: string, hostName: string, avatar: string) {
+  async createMatch(hostId: string, hostName: string, avatar: string, gameType: 'domino' | 'chess' = 'domino') {
     this.checkEnabled();
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     
@@ -37,6 +39,7 @@ export const multiplayerService = {
         code,
         host_id: hostId,
         status: 'lobby',
+        game_type: gameType,
       })
       .select()
       .single();
@@ -82,7 +85,10 @@ export const multiplayerService = {
     let nextSlot = 0;
     while (usedSlots.includes(nextSlot)) nextSlot++;
 
-    if (nextSlot >= 4) throw new Error('Match full');
+    const maxSlots = match.game_type === 'chess' ? 2 : 4;
+    if (nextSlot >= maxSlots) {
+      throw new Error(match.game_type === 'chess' ? 'Match full (2/2 players)' : 'Match full (4/4 players)');
+    }
 
     const { data: player, error: playerError } = await supabase
       .from('players')
@@ -102,7 +108,7 @@ export const multiplayerService = {
     return { match, player };
   },
 
-  async updateGameState(matchId: string, gameState: GameSnapshot) {
+  async updateGameState(matchId: string, gameState: GameSnapshot | ChessGameState) {
     this.checkEnabled();
     const { error } = await supabase!
       .from('matches')
@@ -122,7 +128,7 @@ export const multiplayerService = {
     if (error) throw error;
   },
 
-  async startMatch(matchId: string, initialState: GameSnapshot) {
+  async startMatch(matchId: string, initialState: GameSnapshot | ChessGameState) {
     this.checkEnabled();
     const { error } = await supabase!
       .from('matches')
