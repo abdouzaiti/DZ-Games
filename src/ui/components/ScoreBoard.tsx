@@ -12,6 +12,7 @@ interface ScoreBoardProps {
   snapshot: GameSnapshot;
   userAvatar?: string;
   onBackToLobby?: () => void;
+  onSurrender?: () => void;
   onOpenProfile?: () => void;
   onOpenSettings?: () => void;
   onNewMatch?: () => void;
@@ -23,6 +24,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   snapshot,
   userAvatar = '🇩🇿',
   onBackToLobby,
+  onSurrender,
   onOpenProfile,
   onOpenSettings,
   onNewMatch,
@@ -80,13 +82,27 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
     <div className="w-full flex flex-col gap-1.5 py-1 relative z-10 shrink-0">
       {/* Top Controls Bar */}
       <div className="w-full flex items-center justify-between px-1">
-        <button
-          type="button"
-          onClick={onBackToLobby}
-          className="px-2.5 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-extrabold flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <span>🏠</span> <span>Lobby</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onBackToLobby}
+            className="px-2.5 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-extrabold flex items-center gap-1 cursor-pointer transition-colors"
+            title="Lobby"
+          >
+            <span>🏠</span> <span className="hidden sm:inline">Lobby</span>
+          </button>
+
+          {isMultiplayer && onSurrender && snapshot.roundStatus !== 'MATCH_ENDED' && (
+            <button
+              type="button"
+              onClick={onSurrender}
+              className="px-2.5 py-1 rounded-xl bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-800/50 text-[11px] font-extrabold flex items-center gap-1 cursor-pointer transition-colors"
+              title="Surrender Match"
+            >
+              <span>🏳️</span> <span className="hidden sm:inline">Surrender</span>
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-1.5">
           <button

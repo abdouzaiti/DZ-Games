@@ -114,6 +114,10 @@ export class GameEngine {
         this.notifyListeners();
         break;
 
+      case 'SURRENDER_MATCH':
+        this.handleSurrenderMatch(action.playerId);
+        break;
+
       default:
         console.warn('Unknown action type', action);
     }
@@ -508,6 +512,37 @@ export class GameEngine {
       roundHistory: [...this.snapshot.roundHistory, roundResult],
       latestResult: roundResult,
       lastActionDescription: statusMsg,
+    };
+
+    this.notifyListeners();
+  }
+
+  private handleSurrenderMatch(surrenderingPlayerId: string): void {
+    const surrenderingPlayer = this.snapshot.players.find(p => p.id === surrenderingPlayerId);
+    if (!surrenderingPlayer) return;
+
+    let winnerId = null;
+    let winnerTeamId = null;
+    
+    // In 1v1, the other player wins. In team modes, the other team wins.
+    if (this.snapshot.config.mode === '2v2') {
+      winnerTeamId = surrenderingPlayer.teamId === 0 ? 1 : 0;
+    } else {
+      const otherPlayer = this.snapshot.players.find(p => p.id !== surrenderingPlayerId);
+      if (otherPlayer) winnerId = otherPlayer.id;
+    }
+
+    const updatedMatchScores = {
+      ...this.snapshot.matchScores,
+      matchWinnerId: winnerId,
+      matchWinnerTeamId: winnerTeamId,
+    };
+
+    this.snapshot = {
+      ...this.snapshot,
+      roundStatus: 'MATCH_ENDED',
+      matchScores: updatedMatchScores,
+      lastActionDescription: `${surrenderingPlayer.name} has surrendered the match.`,
     };
 
     this.notifyListeners();

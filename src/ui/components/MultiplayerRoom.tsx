@@ -110,6 +110,10 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
     // Config based on player count
     const mode = players.length === 4 ? '4player_ffa' : players.length === 3 ? '3player_ffa' : '1v1';
     const config = getDefaultConfig(mode);
+    const storedScore = localStorage.getItem('online_target_score');
+    if (storedScore) {
+      config.targetScore = parseInt(storedScore, 10) || 100;
+    }
     
     // Build initial state with real players
     const aiFlags = players.map(() => false);
@@ -148,6 +152,22 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
       (engine as any).notifyListeners();
     }
   }, [snapshot, engine]);
+
+  // Handle AI turn (Host Only)
+  useEffect(() => {
+    if (!snapshot || snapshot.roundStatus !== 'PLAYING' || !isHost) return;
+
+    const activePlayer = TurnManager.getActivePlayer(snapshot.players, snapshot.currentPlayerIndex);
+    if (activePlayer.isAI) {
+      const timer = setTimeout(() => {
+        handleAction({ type: 'AI_STEP' });
+        if (settings.soundEffects) {
+          audioController.playTileClick(true);
+        }
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, [snapshot?.roundStatus, snapshot?.currentPlayerIndex, snapshot?.players, isHost]);
 
   // Reset selected tile when starting a new round or match
   useEffect(() => {
@@ -341,6 +361,11 @@ export const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({
           userAvatar={profile.avatar}
           language={settings.language}
           onBackToLobby={onExit}
+          onSurrender={() => {
+            if (window.confirm("Êtes-vous sûr de vouloir abandonner le match ?")) {
+              handleAction({ type: 'SURRENDER_MATCH', playerId: myPlayer.id });
+            }
+          }}
           onOpenProfile={() => {}}
           onOpenSettings={() => {}}
           onNewMatch={() => {}}

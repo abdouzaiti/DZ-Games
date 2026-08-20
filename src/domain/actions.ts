@@ -14,7 +14,8 @@ export type GameActionType =
   | 'AUTO_DRAW'
   | 'PASS_TURN'
   | 'AI_STEP'
-  | 'RESTART_MATCH';
+  | 'RESTART_MATCH'
+  | 'SURRENDER_MATCH';
 
 export interface StartMatchAction {
   type: 'START_MATCH';
@@ -58,6 +59,11 @@ export interface RestartMatchAction {
   type: 'RESTART_MATCH';
 }
 
+export interface SurrenderMatchAction {
+  type: 'SURRENDER_MATCH';
+  playerId: string;
+}
+
 export type GameAction =
   | StartMatchAction
   | StartNewRoundAction
@@ -66,4 +72,5 @@ export type GameAction =
   | AutoDrawAction
   | PassTurnAction
   | AIStepAction
-  | RestartMatchAction;
+  | RestartMatchAction
+  | SurrenderMatchAction;

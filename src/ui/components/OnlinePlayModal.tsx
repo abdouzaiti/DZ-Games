@@ -58,6 +58,7 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
   onJoinMatch,
 }) => {
   const [roomCode, setRoomCode] = useState('');
+  const [targetScore, setTargetScore] = useState<number>(100);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +80,7 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
     setIsConnecting(true);
     setError(null);
     try {
+      localStorage.setItem('online_target_score', targetScore.toString());
       const userId = generateUserId();
       const { match, player } = await multiplayerService.createMatch(userId, profile.name, profile.avatar);
       onJoinMatch(match.id, player.id);
@@ -140,6 +142,24 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
         {/* Online Actions */}
         <div className="space-y-4 text-left">
           <div className="space-y-2">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Objectif</span>
+              <div className="flex gap-1">
+                {[100, 150, 200].map(pts => (
+                  <button
+                    key={pts}
+                    onClick={() => setTargetScore(pts)}
+                    className={`px-3 py-1 text-xs font-black rounded-lg transition-all border-2 ${
+                      targetScore === pts 
+                        ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-500/30' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-white'
+                    }`}
+                  >
+                    {pts}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               type="button"
               disabled={isConnecting}
