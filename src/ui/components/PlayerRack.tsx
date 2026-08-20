@@ -101,6 +101,7 @@ export const PlayerRack: React.FC<PlayerRackProps> = ({
               <motion.div
                 key={tile.id}
                 layout
+                layoutId={`tile-${tile.id}`}
                 initial={{ opacity: 0, scale: 0.8, y: 15 }}
                 animate={{
                   opacity: 1,

@@ -17,6 +17,7 @@ import { TurnManager } from './engine/turn/turnManager';
 import { GameBoard } from './ui/components/GameBoard';
 import { IntroScreen } from './ui/components/IntroScreen';
 import { MainLobby } from './ui/components/MainLobby';
+import { GamesHub } from './ui/components/GamesHub';
 import { MatchSetupModal } from './ui/components/MatchSetupModal';
 import { PlayerRack } from './ui/components/PlayerRack';
 import { RoundResultModal } from './ui/components/RoundResultModal';
@@ -40,7 +41,7 @@ export default function App() {
   // Singleton instance of pure GameEngine
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 
-  const [activeView, setActiveView] = useState<'lobby' | 'game' | 'multiplayer'>('lobby');
+  const [activeView, setActiveView] = useState<'hub' | 'lobby' | 'game' | 'multiplayer'>('hub');
   const [matchId, setMatchId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
@@ -88,7 +89,7 @@ export default function App() {
     localStorage.removeItem('mgc_user');
     setIsAuthenticated(false);
     setAccount(null);
-    setActiveView('lobby');
+    setActiveView('hub');
   };
 
   const [snapshot, setSnapshot] = useState<GameSnapshot>(engine.getSnapshot());
@@ -305,6 +306,20 @@ export default function App() {
     return <AuthScreen onAuthenticated={handleAuthenticated} />;
   }
 
+  // STEP 1.5: Games Hub
+  if (activeView === 'hub') {
+    return (
+      <GamesHub
+        profile={profile}
+        settings={settings}
+        onSelectGame={(gameId) => {
+          if (gameId === 'domino') setActiveView('lobby');
+        }}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   // STEP 2: Main Lobby
   if (activeView === 'lobby') {
     return (
@@ -316,7 +331,7 @@ export default function App() {
         onUpdateProfile={handleUpdateProfile}
         onStartOfflineMatch={handleStartMatch}
         onJoinMatch={handleJoinMatch}
-        onLogout={handleLogout}
+        onLogout={() => setActiveView('hub')}
       />
     );
   }

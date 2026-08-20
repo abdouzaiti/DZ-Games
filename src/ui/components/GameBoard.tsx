@@ -76,6 +76,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               <motion.div
                 key={`${tile.displayTile.id}-${tile.logicalIndex}`}
                 layout
+                layoutId={`tile-${tile.displayTile.id}`}
                 initial={{ scale: 0.5, opacity: 0, y: -20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 22 }}

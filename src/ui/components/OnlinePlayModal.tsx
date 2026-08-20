@@ -110,9 +110,14 @@ export const OnlinePlayModal: React.FC<OnlinePlayModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border-2 border-blue-400/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative text-center overflow-hidden">
         {/* Decorative Online Icon */}
-        <div className="mx-auto w-20 h-20 rounded-3xl bg-blue-50 border-2 border-blue-300 flex items-center justify-center text-4xl shadow-xl shadow-blue-500/10 relative">
-          🌐
-          <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-blue-600 text-white text-[10px] font-black rounded-md uppercase">
+        <div className="mx-auto w-24 h-24 flex items-center justify-center relative">
+          <img
+            src="/mgc.png"
+            alt="MGC Logo"
+            className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform"
+            referrerPolicy="no-referrer"
+          />
+          <span className="absolute top-0 -right-2 px-2 py-0.5 bg-blue-600 text-white text-[10px] font-black rounded-md uppercase shadow-lg shadow-blue-500/50">
             {ot.v2Online}
           </span>
         </div>

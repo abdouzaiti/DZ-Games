@@ -44,6 +44,7 @@ export const GameStock: React.FC<GameStockProps> = ({
           {stock.map((tile, index) => (
             <motion.div
               key={tile.id}
+              layoutId={`tile-${tile.id}`}
               initial={{ opacity: 0, x: 100, rotate: 90 }}
               animate={{
                 opacity: 1,

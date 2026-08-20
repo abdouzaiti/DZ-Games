@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Settings, LogOut } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { GameConfig } from '../../domain/gameConfig';
 import { Language, getTranslation } from '../translations';
 import { AppSettings, SettingsModal } from './SettingsModal';
@@ -76,27 +76,30 @@ export const MainLobby: React.FC<MainLobbyProps> = ({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1E3A8A_0%,_#0F172A_100%)] opacity-85 pointer-events-none" />
 
       {/* TOP BAR HEADER */}
-      <header className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between py-1 sm:py-2 shrink-0">
+      <header className="relative z-10 w-full max-w-5xl mx-auto grid grid-cols-3 items-center py-2 sm:py-4 shrink-0">
+        {/* Left Empty Area */}
+        <div className="flex items-center justify-start"></div>
+
         {/* App Logo */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <img
             src="/mgc.png"
             alt="MOSTA GAMES CLUB Logo"
-            className="h-10 sm:h-14 w-auto object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform"
+            className="h-16 sm:h-24 w-auto object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform"
             referrerPolicy="no-referrer"
           />
         </div>
 
         {/* Top Right Actions */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Logout Button */}
+        <div className="flex items-center justify-end gap-1 sm:gap-2">
+          {/* Home Button */}
           <button
             type="button"
             onClick={onLogout}
-            className="p-2 sm:p-3 rounded-2xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-            title="Se déconnecter"
+            className="p-2 sm:p-3 rounded-2xl text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+            title="Retour à l'accueil"
           >
-            <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="text-xl sm:text-2xl leading-none">🏠</span>
           </button>
 
           {/* Settings Icon Trigger */}
