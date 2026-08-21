@@ -25,7 +25,6 @@ import { ScoreBoard } from './ui/components/ScoreBoard';
 import { SettingsModal, AppSettings } from './ui/components/SettingsModal';
 import { ProfileModal, UserProfile } from './ui/components/ProfileModal';
 import { TileShuffler } from './ui/components/TileShuffler';
-import { GameStock } from './ui/components/GameStock';
 import { MultiplayerRoom } from './ui/components/MultiplayerRoom';
 import { getTranslation } from './ui/translations';
 import { audioController } from './ui/utils/audio';
@@ -35,6 +34,7 @@ import { UserAccount } from './services/authService';
 
 import { ChessLobby } from './ui/components/chess/ChessLobby';
 import { ChessGameUI } from './ui/components/chess/ChessGameUI';
+import { LudoGameUI } from './ui/components/ludo/LudoGameUI';
 
 export default function App() {
   // Authentication State
@@ -44,7 +44,7 @@ export default function App() {
   // Singleton instance of pure GameEngine
   const engine = useMemo(() => new GameEngine(getDefaultConfig('1v1')), []);
 
-  const [activeView, setActiveView] = useState<'hub' | 'lobby' | 'game' | 'multiplayer' | 'chess_lobby' | 'chess_game'>('hub');
+  const [activeView, setActiveView] = useState<'hub' | 'lobby' | 'game' | 'multiplayer' | 'chess_lobby' | 'chess_game' | 'ludo_game'>('hub');
   const [matchId, setMatchId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
@@ -325,6 +325,7 @@ export default function App() {
         onSelectGame={(gameId) => {
           if (gameId === 'domino') setActiveView('lobby');
           if (gameId === 'chess') setActiveView('chess_lobby');
+          if (gameId === 'ludo') setActiveView('ludo_game');
         }}
         onLogout={handleLogout}
       />
@@ -368,6 +369,17 @@ export default function App() {
         myPlayerId={chessMyPlayerId}
         isHost={chessIsHost}
         onExit={() => setActiveView('chess_lobby')}
+      />
+    );
+  }
+
+  // LUDO: Game
+  if (activeView === 'ludo_game') {
+    return (
+      <LudoGameUI
+        profile={profile}
+        settings={settings}
+        onExit={() => setActiveView('hub')}
       />
     );
   }
@@ -437,6 +449,11 @@ export default function App() {
           snapshot={snapshot}
           userAvatar={profile.avatar}
           language={settings.language}
+          canDraw={canDraw}
+          onDraw={() => {
+            audioController.playTileClick(settings.soundEffects);
+            handleDispatch({ type: 'DRAW_TILE', playerId: humanPlayer.id });
+          }}
           onBackToLobby={() => {
             audioController.playButtonClick(settings.soundEffects);
             setActiveView('lobby');
@@ -454,19 +471,6 @@ export default function App() {
             validEndsForSelectedTile={validEndsForSelectedTile}
             onPlaceTile={handlePlaceTile}
           />
-
-          {/* Physical Tile Stock Pile on the Right */}
-          {!isShuffling && (
-            <GameStock
-              stock={snapshot.stock}
-              canDraw={canDraw}
-              onDraw={() => {
-                audioController.playTileClick(settings.soundEffects);
-                handleDispatch({ type: 'DRAW_TILE', playerId: humanPlayer.id });
-              }}
-              language={settings.language}
-            />
-          )}
 
           {/* Interactive Manual Shuffle and Tile Pick Overlay */}
           {isShuffling && (

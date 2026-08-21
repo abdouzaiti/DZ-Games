@@ -31,9 +31,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({ profile, settings, onSelectG
     {
       id: 'ludo' as const,
       title: isAr ? 'لودو' : 'Ludo',
-      description: isAr ? 'قيد التطوير...' : 'En développement...',
+      description: isAr ? 'العب لودو غير متصل بالإنترنت ضد الذكاء الاصطناعي.' : "Jouez au Ludo hors ligne contre l'IA.",
       icon: '🎲',
-      status: 'development',
+      status: 'active',
     },
   ];
 

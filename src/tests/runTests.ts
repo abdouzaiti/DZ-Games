@@ -11,6 +11,8 @@ import { runRoundMatchLifecycleTests } from './roundMatchLifecycle.test';
 import { runDominoAITests } from './dominoAI.test';
 import { runQAStressTestSuite } from './qaStressTestSuite.test';
 import { runPhase10QATests as runChessQATests } from '../chess/tests/phase10.test';
+import { runLudoTests } from '../ludo/tests/ludo.test';
+import { runLudoStressQASuite } from '../ludo/tests/ludoStressQA.test';
 
 try {
   runGameEngineTests();
@@ -21,6 +23,8 @@ try {
   runDominoAITests();
   runQAStressTestSuite();
   runChessQATests();
+  runLudoTests();
+  runLudoStressQASuite();
   process.exit(0);
 } catch (err) {
   console.error('❌ Test failed:', err);
